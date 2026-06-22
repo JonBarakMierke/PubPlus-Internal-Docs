@@ -19,22 +19,27 @@
     ]
   },
   "navigation": {
-    "tabs": [
+    "anchors": [
       {
-        "tab": "Portal Docs",
-        "icon": "screen-share",
-        "dropdowns": [
+        "anchor": "Test",
+        "tabs": [
           {
-            "dropdown": "Admin Panel",
-            "pages": [
-              "overview"
+            "tab": "Portal Docs",
+            "icon": "screen-share",
+            "dropdowns": [
+              {
+                "dropdown": "Admin Panel",
+                "pages": [
+                  "overview"
+                ]
+              }
             ]
+          },
+          {
+            "tab": "Strata Print Docs",
+            "icon": "layers"
           }
         ]
-      },
-      {
-        "tab": "Strata Print Docs",
-        "icon": "layers"
       }
     ]
   },
