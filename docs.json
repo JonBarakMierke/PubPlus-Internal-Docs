@@ -22,7 +22,15 @@
     "tabs": [
       {
         "tab": "Portal Documentation",
-        "icon": "screen-share"
+        "icon": "screen-share",
+        "dropdowns": [
+          {
+            "dropdown": "Admin Panel",
+            "pages": [
+              "overview"
+            ]
+          }
+        ]
       }
     ]
   },
@@ -46,9 +54,5 @@
   },
   "styling": {
     "eyebrows": "section"
-  },
-  "banner": {
-    "content": "Test",
-    "dismissible": true
   }
 }
