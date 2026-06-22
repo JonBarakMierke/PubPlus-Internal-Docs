@@ -26,7 +26,8 @@
         "pages": [
           {
             "group": "Admin Panel",
-            "pages": []
+            "pages": [],
+            "icon": "square-dashed-text"
           },
           {
             "group": "Client Portal",
@@ -38,12 +39,13 @@
           {
             "group": "Database",
             "pages": [
-              "lunar-products",
-              "overview"
-            ]
+              "overview",
+              "lunar-products"
+            ],
+            "icon": "database"
           },
-          "developer-info",
-          "overview-1"
+          "overview-1",
+          "developer-info"
         ]
       }
     ]
