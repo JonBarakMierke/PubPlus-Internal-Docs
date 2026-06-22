@@ -22,25 +22,19 @@
     "tabs": [
       {
         "tab": "Portal Docs",
-        "icon": "screen-share",
-        "dropdowns": [
+        "icon": "layers",
+        "groups": [
           {
-            "dropdown": "Admin Panel",
-            "pages": [
-              "overview"
-            ]
+            "group": "Admin Panel",
+            "pages": []
           },
           {
-            "dropdown": "Client Portal",
+            "group": "Client Portal",
             "pages": [
-              "customers"
+              "customer"
             ]
           }
         ]
-      },
-      {
-        "tab": "Strata Print Docs",
-        "icon": "layers"
       }
     ]
   },
