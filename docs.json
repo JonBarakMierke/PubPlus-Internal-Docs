@@ -19,27 +19,28 @@
     ]
   },
   "navigation": {
-    "anchors": [
+    "tabs": [
       {
-        "anchor": "Test",
-        "tabs": [
+        "tab": "Portal Docs",
+        "icon": "screen-share",
+        "dropdowns": [
           {
-            "tab": "Portal Docs",
-            "icon": "screen-share",
-            "dropdowns": [
-              {
-                "dropdown": "Admin Panel",
-                "pages": [
-                  "overview"
-                ]
-              }
+            "dropdown": "Admin Panel",
+            "pages": [
+              "overview"
             ]
           },
           {
-            "tab": "Strata Print Docs",
-            "icon": "layers"
+            "dropdown": "Client Portal",
+            "pages": [
+              "customers"
+            ]
           }
         ]
+      },
+      {
+        "tab": "Strata Print Docs",
+        "icon": "layers"
       }
     ]
   },

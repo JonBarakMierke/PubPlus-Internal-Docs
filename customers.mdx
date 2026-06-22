@@ -1,0 +1,57 @@
+---
+title: "Customers"
+---
+
+## Scoping customers
+
+Lunar provides both customers and customer groups when it comes to scoping products and pricing.\
+We've opted to treat customers as the top of the scope and then refine using the standard users table. If further scope "refinement" is needed, permissions are also available.
+
+<Frame>
+  ![Portal Scope Flow](/images/portal-scope-flow.png)
+</Frame>
+
+- How users are scoped to the company
+- Prevent cross-company access (VERY important)
+
+## Customer Relationships
+
+Currently, there are the following tables that relate directly to `lunar_customers` .
+
+There may be other tables that relate indirectly to the customers table.
+
+```text
++-------------------------------+
+| TABLE_NAME                    |
++-------------------------------+
+| customer_product              |
+| customer_settings             |
+| customer_themes               |
+| lunar_addresses               |
+| lunar_carts                   |
+| lunar_customer_customer_group |
+| lunar_customer_discount       |
+| lunar_customer_user           |
+| lunar_orders                  |
++-------------------------------+
+```
+
+## Customer → Products -- Relating Products to Customers
+
+Lunar doesn't offer a default way to filter products by customers. Lunar only offers collections, brands, product type, customer groups, and channels.
+
+Linking customers and products directly is accomplished through a traditional pivot table.
+
+**Eloquent Relationships**
+
+<Warning>
+  Right now there doesn't seem to be a products() relationship defined on the model extension file for<u> App\\Models\\Lunar\\Extensions\\Customer.php</u>
+</Warning>
+
+```php
+// App\Models\Lunar\Extensions\Product.php
+public function customers()
+{
+    return $this->belongsToMany(Customer::class, 'customer_product');
+}
+```
