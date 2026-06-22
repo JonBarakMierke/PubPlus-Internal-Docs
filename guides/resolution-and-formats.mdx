@@ -1,0 +1,91 @@
+---
+title: "Image Resolution and File Format Requirements for Print"
+sidebarTitle: "Resolution & Formats"
+description: "Understand why 300 DPI is required for professional print quality, how to check your image resolution, and which file formats Publications Plus accepts."
+---
+
+The quality of every image in your print file is locked in the moment you place it — you can't recover detail that was never captured. Resolution determines how much image data is available per inch of printed space, and submitting files below the required threshold is one of the most common reasons print jobs come out blurry, pixelated, or soft. Getting resolution right from the start, and choosing the correct file format, ensures your artwork looks as sharp on paper as it does on your screen.
+
+## What Is DPI and Why Does It Matter?
+
+DPI stands for **dots per inch** — it describes how many individual ink dots a printer places within one linear inch of output. The more dots per inch, the finer the detail and the sharper the result.
+
+- **300 DPI** is the industry standard for professional print quality at normal viewing distances. Use this for all standard print products: flyers, brochures, business cards, postcards, and booklets.
+- **72 DPI** is the standard for screen and web images. These files contain far too little data for print — they will appear visibly pixelated when reproduced at physical size.
+- **Higher DPI (600+)** is occasionally used for very fine detail work such as small text, intricate line art, or certain specialty products. Ask the Publications Plus team if you're unsure.
+
+<Warning>
+  Do **not** enlarge a low-resolution image in your design software and assume the quality problem is fixed. Scaling an image up only stretches the existing pixels — it does not add new image data. The printed result will be blurry or blocky regardless of what it looks like on screen.
+</Warning>
+
+## How to Check Image Resolution
+
+<Steps>
+  <Step title="In Adobe Photoshop">
+    Open the image and go to **Image → Image Size**. Make sure the **Resample** checkbox is unchecked, then read the Resolution field. It should show **300 pixels/inch** or higher at the intended print dimensions.
+  </Step>
+
+  <Step title="In Adobe Illustrator or InDesign">
+    Select the placed image and open **Window → Links** (InDesign) or the **Links panel** (Illustrator). Click the image name to expand its details — the effective PPI (pixels per inch) is listed there. Effective PPI accounts for any scaling you've applied, so check this number rather than the original file resolution.
+  </Step>
+
+  <Step title="In other design applications">
+    Look for an Image Info, Link Info, or Properties panel. Confirm the effective resolution at your intended output size is at or above 300 DPI. If the software doesn't report effective resolution, calculate it manually: divide the image's pixel width by the intended print width in inches.
+  </Step>
+
+  <Step title="Before exporting">
+    Run a preflight or export check if your software supports it (InDesign's **Preflight panel** and Acrobat's **Output Preview** are particularly thorough). Flag any image that falls below 300 DPI effective resolution and replace it with a higher-resolution version before submitting.
+  </Step>
+</Steps>
+
+<Note>
+  Always start with the highest-resolution original available — camera RAW files, high-res stock downloads, or original vector artwork. Do not source images from websites; browser-displayed images are compressed to 72 DPI and are not suitable for print.
+</Note>
+
+## Accepted File Formats
+
+Choose the right format for your artwork type. Vector formats are preferred for graphics and layouts; raster formats must meet the 300 DPI minimum.
+
+### Preferred Formats
+
+| Format | Type | Best For | Notes |
+|--------|------|----------|-------|
+| **PDF** | Vector + Raster | Final print-ready files | Preserves fonts, layout, resolution, and color profiles. Use PDF/X-1a or PDF/X-4 for best compatibility. |
+| **SVG** | Vector | Logos, icons, illustrations | Resolution-independent — stays sharp at any output size. Ideal for scalable artwork. |
+| **EPS** | Vector | Logos, line art | Widely supported across prepress workflows. Use for artwork that must be compatible with older production systems. |
+| **AI** | Vector | Adobe Illustrator native files | Acceptable when PDF export from Illustrator is not feasible. Ensure all fonts are embedded or outlined. |
+
+### Formats to Avoid
+
+| Format | Why It's Problematic |
+|--------|----------------------|
+| **JPEG** | Uses lossy compression — each save discards image data permanently. Visible compression artifacts appear in print, especially in gradients and dark areas. Even high-quality JPEG settings degrade fine detail over multiple saves. |
+| **PNG (72 DPI web export)** | Web-exported PNGs are typically 72 DPI. PNG files at 300 DPI are acceptable for photos, but confirm resolution before submitting. |
+| **GIF** | Limited to 256 colors; not suitable for full-color print reproduction. |
+| **BMP** | Uncompressed raster with no color profile support; unnecessarily large and poorly supported in prepress. |
+
+<Tip>
+  When exporting your final PDF from Illustrator or InDesign, enable the option to **embed all images** rather than link to them. An embedded PDF is a self-contained file — Publications Plus can open and process it without needing access to your linked assets folder. Also confirm that compression settings in the PDF export dialog are set to **no downsampling** (or at minimum 300 DPI) to prevent the export process itself from reducing image quality.
+</Tip>
+
+## Quick Resolution Reference
+
+| Product Type | Minimum Resolution |
+|---|---|
+| Business cards, postcards, flyers | 300 DPI |
+| Brochures, booklets, folders | 300 DPI |
+| Posters (viewed at close range) | 300 DPI |
+| Wide-format banners (viewed from 5 ft+) | 150 DPI at final size |
+| Wide-format murals (viewed from 10 ft+) | 100 DPI at final size |
+
+<Accordion title="My image looks sharp on screen — why would it be low resolution?">
+  Monitors display images at 72–96 PPI regardless of the file's actual resolution, and they scale images to fit your screen. An image that fills your monitor at 72 DPI can look perfectly crisp on screen but will be severely blurry when printed at physical size. The only reliable way to verify print resolution is to check the DPI value in your software at the intended output dimensions.
+</Accordion>
+
+<Accordion title="Can I upscale my image to 300 DPI in Photoshop?">
+  Resampling an image up in Photoshop (checking the Resample box and increasing the resolution) uses interpolation to invent new pixels. The result is slightly softer than a true 300 DPI original and will not recover genuine detail. For critical print quality, always source a native high-resolution image rather than upsampling.
+</Accordion>
+
+<Accordion title="Should I submit the native AI or INDD file instead of a PDF?">
+  PDF is the preferred submission format because it is self-contained and universally readable by prepress software. Native files require the same application version and all linked assets and fonts to open correctly. If you do submit a native file, include all linked images in a packaged folder and ensure fonts are embedded or outlined.
+</Accordion>

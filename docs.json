@@ -1,0 +1,126 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "sequoia",
+  "name": "Publications Plus",
+  "description": "Order custom print products online — business cards, flyers, brochures, signage, magazines, and more from Publications Plus in Montgomery, AL.",
+  "colors": {
+    "primary": "#6cbc44",
+    "light": "#b2bddb",
+    "dark": "#49872b"
+  },
+  "favicon": "https://media.brand.dev/2d288d06-543f-4789-85aa-cf6f9ce40672.png",
+  "icons": {
+    "library": "lucide"
+  },
+  "contextual": {
+    "options": ["copy", "view", "assistant"]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "introduction",
+              "how-to-order",
+              "file-requirements"
+            ]
+          },
+          {
+            "group": "Your Account",
+            "pages": [
+              "account/client-portal",
+              "account/guest-checkout"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Products",
+        "groups": [
+          {
+            "group": "Small Print",
+            "pages": [
+              "products/business-cards",
+              "products/flyers",
+              "products/brochures"
+            ]
+          },
+          {
+            "group": "Signage",
+            "pages": [
+              "products/yard-signs",
+              "products/wide-format"
+            ]
+          },
+          {
+            "group": "Publications",
+            "pages": [
+              "products/magazines",
+              "products/booklets-catalogs"
+            ]
+          },
+          {
+            "group": "Direct Mail",
+            "pages": [
+              "products/direct-mail",
+              "products/variable-data"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "File Prep",
+            "pages": [
+              "guides/bleed-and-trim",
+              "guides/color-setup",
+              "guides/resolution-and-formats",
+              "guides/typography"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              "guides/design-services",
+              "guides/custom-quote",
+              "guides/shipping-and-pickup"
+            ]
+          },
+          {
+            "group": "Policies",
+            "pages": [
+              "guides/refund-policy",
+              "guides/terms-and-conditions",
+              "guides/privacy-policy"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "https://media.brand.dev/0d4eb782-93d1-432d-af0d-4a87faed4d25.svg",
+    "dark": "https://media.brand.dev/0d4eb782-93d1-432d-af0d-4a87faed4d25.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Shop Products",
+        "href": "https://store.pubplus.net/store"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get a Quote",
+      "href": "https://store.pubplus.net"
+    }
+  },
+  "footer": {
+    "socials": {}
+  }
+}

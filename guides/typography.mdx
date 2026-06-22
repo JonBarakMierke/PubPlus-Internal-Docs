@@ -1,0 +1,119 @@
+---
+title: "Typography and Font Setup for Professional Print Files"
+sidebarTitle: "Typography"
+description: "Embed fonts or convert text to outlines before submitting print files, set correct minimum sizes, and ensure every character prints exactly as designed."
+---
+
+Typography is one of the easiest things to get right — and one of the most painful to discover wrong after your job is already on press. When a printer's computer opens your file and can't find the fonts you used, it substitutes whatever it has available, which can reflow your text, change letter spacing, and completely alter the look of your design. Embedding your fonts or converting text to outlines eliminates this risk entirely, and paying attention to minimum sizes ensures every word is legible in the final printed piece.
+
+## Why Fonts Must Be Embedded or Outlined
+
+Print service bureaus and prepress systems process files on computers that may not have the same fonts installed as yours. If your PDF or native file references a font that is missing on the production system:
+
+- The software substitutes a default font (often Helvetica or Courier)
+- Text reflows, breaking your carefully tuned layout
+- Custom letterforms, ligatures, and OpenType features are lost
+- The job may print incorrectly without any visible warning
+
+You prevent all of this by either **embedding** the font data in your exported PDF or **converting text to outlines** (also called "converting to paths") before you export.
+
+<Note>
+  After converting text to outlines, the characters are no longer editable as live text — they become vector shapes. Always keep a backup copy of your file with live text before outlining, in case you need to make changes later.
+</Note>
+
+## Embedding Fonts vs. Converting to Outlines
+
+Both approaches solve the font-substitution problem; choose the one that fits your workflow.
+
+<Accordion title="Option 1: Embed fonts when exporting a PDF (recommended)">
+  Most professional PDF export dialogs include an option to embed all fonts. In Adobe applications:
+
+  - **Illustrator:** File → Save As → Adobe PDF → in the Advanced tab, confirm "Subset fonts when percent of characters used is below 100%"
+  - **InDesign:** File → Export → Adobe PDF → Fonts are embedded by default; verify in the Output tab that no fonts are listed as unembedded
+  - **Affinity Publisher:** File → Export → PDF → enable "Embed fonts"
+
+  Embedding keeps text as live, searchable, selectable vector data in the PDF while ensuring the font renders correctly on any system.
+</Accordion>
+
+<Accordion title="Option 2: Convert text to outlines before exporting">
+  Converting text to outlines turns every character into a vector path. No font data is needed to render it — what you see is exactly what prints.
+
+  **Adobe Illustrator:**
+  1. Select all text objects (Edit → Select All, or select individual text frames)
+  2. Go to **Type → Create Outlines** (or press Shift+Ctrl/Cmd+O)
+  3. Confirm the text is now a group of paths in the Layers panel
+
+  **Adobe Photoshop (for type layers):**
+  1. Right-click the type layer in the Layers panel
+  2. Select **Convert to Shape**
+  3. The text is now a vector shape layer
+
+  **Adobe InDesign:**
+  1. Select the text frame(s)
+  2. Go to **Type → Create Outlines**
+  3. Note: in InDesign, outlined text cannot be reflowed — verify layout before outlining
+
+  After outlining, review your file carefully. Check for any text that was missed (especially text inside groups, on artboards, or on hidden layers), and confirm no characters were corrupted during conversion.
+</Accordion>
+
+## Minimum Font Sizes
+
+Small text that looks perfectly readable on screen can become an illegible blur when printed, especially on uncoated stocks or at small finished sizes. Follow these minimums to ensure every line of type prints clearly.
+
+| Content Type | Minimum Size | Notes |
+|---|---|---|
+| Body text (standard print) | **6–8 pt** | 8 pt is safer for most stocks; 6 pt is the absolute floor for coated paper only |
+| Captions and fine print | **6 pt** | Test carefully; avoid thin-weight fonts at this size |
+| Headings and display text | **No fixed minimum** — but larger | Should be visually prominent; test at actual print size |
+| Wide-format department | **8 pt minimum** | Wide-format media and viewing distances require a higher baseline |
+| Reversed text (white on dark) | Add 1–2 pt above minimums | Ink spread can close up thin strokes and counters |
+
+<Tip>
+  The most reliable legibility test is to print a proof at 100% scale on your own desktop printer, then hold it at the intended viewing distance. If you can read it comfortably, it will print readably. If you squint or lean in, increase the point size or switch to a heavier font weight.
+</Tip>
+
+## Testing Legibility Before Finalizing
+
+<Steps>
+  <Step title="Print a proof at 100% scale">
+    Export a draft PDF and print it at full size on any available printer. Do not rely on on-screen zoom — what looks fine at 200% on screen may be illegible at actual size.
+  </Step>
+
+  <Step title="Test at the intended viewing distance">
+    Hold the proof at the distance a typical reader would hold or view the finished piece — arm's length for a flyer, a few feet for a poster, across the room for a banner. All text should be readable without effort.
+  </Step>
+
+  <Step title="Check thin fonts and light weights on dark backgrounds">
+    Thin typeface weights and light-colored text on dark or photographic backgrounds are the most likely to become illegible in print. If any text is borderline, increase the weight, size, or contrast.
+  </Step>
+
+  <Step title="Verify reversed text and overlapping elements">
+    Check anywhere text overlaps an image or gradient. Confirm sufficient contrast at every point along the background — a word that is readable over the light part of an image may disappear over a dark area.
+  </Step>
+</Steps>
+
+<Note>
+  After you receive your exported PDF, open it in Adobe Acrobat and go to **File → Properties → Fonts** tab. This lists every font referenced in the document and whether it is embedded. Any font shown as "not embedded" needs to be corrected before you submit the file to Publications Plus.
+</Note>
+
+## Rich Black for Large Headline Text
+
+Large, bold display text — oversized headlines, full-width title blocks, and large decorative letterforms — benefits from the same Rich Black treatment as large dark background areas. Using 100% K alone on thick strokes can produce the same flat, slightly washed-out result as it does on solid fills.
+
+Apply Rich Black Mix 1 (C60 M40 Y40 K100) to headline text that is set large enough for the multi-ink blend to be visible and stable. For small body text and fine type, use 100% K only — Rich Black at small sizes causes ink registration issues that blur thin strokes and close up counters and serifs.
+
+For the full Rich Black formula reference, see the [Color Setup guide](/guides/color-setup).
+
+## Font Checklist Before Submitting
+
+<Accordion title="Pre-submission font checklist">
+  Before sending your file to Publications Plus, confirm each of the following:
+
+  - [ ] All fonts are embedded in the exported PDF **or** all text has been converted to outlines
+  - [ ] No font is listed as "not embedded" in Acrobat's Font Properties panel
+  - [ ] All text meets or exceeds the minimum point size for its content type and department
+  - [ ] Legibility has been verified on a physical or full-scale proof
+  - [ ] Reversed (light-on-dark) text is at least 1–2 pt above the applicable minimum
+  - [ ] Rich Black is applied to large headline text; 100% K is used for small body text
+  - [ ] A backup copy of the file with live (unoutlined) text is saved
+</Accordion>
