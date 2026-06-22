@@ -108,12 +108,7 @@
     "dark": "https://media.brand.dev/0d4eb782-93d1-432d-af0d-4a87faed4d25.svg"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Shop Products",
-        "href": "https://store.pubplus.net/store"
-      }
-    ],
+    "links": [],
     "primary": {
       "type": "button",
       "label": "Get a Quote",
