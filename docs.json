@@ -45,7 +45,13 @@
             "icon": "database"
           },
           "overview-1",
-          "developer-info"
+          "developer-info",
+          {
+            "group": "Lunar",
+            "pages": [
+              "tax"
+            ]
+          }
         ]
       }
     ]
