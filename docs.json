@@ -52,7 +52,17 @@
               "tax"
             ]
           },
-          "blade-components"
+          {
+            "group": "Blade Components",
+            "pages": [
+              {
+                "group": "Sections",
+                "pages": [
+                  "cta"
+                ]
+              }
+            ]
+          }
         ]
       }
     ]

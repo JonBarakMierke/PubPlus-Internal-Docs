@@ -1,0 +1,182 @@
+---
+title: "CTA"
+---
+
+# CTA Section Component
+
+Reusable, themeable call-to-action section. Renders as `<x-sections.cta>`.
+
+## File Structure
+
+```text
+resources/views/components/sections/cta/
+├── index.blade.php          # Router — resolves variant, theme, and shared props
+└── variants/
+    ├── centered.blade.php   # Centered, single-column layout
+    └── split.blade.php      # Two-column layout with an illustration/image
+```
+
+> ⚠️ Never let a flat `sections/cta.blade.php` file exist alongside this directory. Laravel resolves the flat file first and will silently ignore everything below.
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `variant` | `centered` \| `split` | `centered` | Picks which file in `variants/` renders. |
+| `theme` | `dark` \| `light` \| `brand` \| `navy` | `dark` | Controls background \+ all text colors as a matched set. See [Themes](https://claude.ai/chat/8100338c-0503-43da-92d6-0b3e432b87f4#themes). |
+| `container` | any Tailwind `max-w-*` class | `max-w-4xl` | Controls the max width of the section content. |
+| `rounded` | any Tailwind rounding class | `rounded-4xl` | Outer container corner radius. |
+| `imagePosition` | `left` \| `right` | `right` | `split `**variant only.** Which side the illustration sits on. |
+| `imageWidth` | any Tailwind width class | `md:w-1/2` | `split `**variant only.** Width of the image column at `md` breakpoint. |
+| `imageStyle` | `contained` \| `bleed` | `contained` | `split `**variant only.** See [Image Styles](https://claude.ai/chat/8100338c-0503-43da-92d6-0b3e432b87f4#image-styles). |
+
+Kebab-case in Blade tags, e.g. `image-position="left"`, `image-style="bleed"`.
+
+---
+
+## Slots
+
+| Slot | Required | Description |
+| :-- | :-- | :-- |
+| `eyebrow` | No | Small uppercase label/pill above the heading. |
+| `heading` | No | Main `<h2>` (rendered via `x-ui.heading`). |
+| `subtext` | No | Supporting paragraph under the heading. |
+| `actions` | No | Button(s) — typically an `x-ui.button`. |
+| `footer` | No | Secondary links, e.g. contact info. |
+| `illustration` | `split` only | Image, SVG, or other visual for the image column. Ignored by `centered`. |
+
+All slots are optional and independently `@isset`-guarded — omit anything you don't need.
+
+---
+
+## Themes
+
+Themes are a fixed, brand-approved set defined once in `index.blade.php`. There is **no free-form** `bg `**prop** — this is intentional, so every CTA on the site stays on-brand.
+
+| Theme | Background | Text | Use case |
+| :-- | :-- | :-- | :-- |
+| `dark` | Neutral gradient (`neutral-400/50 → neutral-500/80`) | White / light gray | Default, general-purpose CTA. |
+| `light` | `bg-sky-50` | Dark neutral tones | Soft, editorial sections (e.g. "Support at Every Step"). |
+| `brand` | `bg-grad-accent-left` (site accent gradient) | White | High-emphasis, promotional CTAs. |
+| `navy` | `bg-neutral-900` | White / light gray | Placeholder — update with real brand navy if/when defined. |
+
+**To add a new theme:** add one entry to the `$themes` array in `index.blade.php` with `bg`, `heading`, `subtext`, `footer`, and `eyebrow` keys. It becomes available everywhere immediately — no changes needed in variant files.
+
+---
+
+## Image Styles (`split` variant)
+
+- `contained` (default) — Illustration floats freely within its column (e.g. a rotated product mockup with its own shadow/rounding). Use for SVGs, product shots, or anything that should look "placed," not full-bleed.
+- `bleed` — Illustration fills its entire column edge-to-edge, including the section's outer padding, and takes on the section's outer rounding on its side. Use for photography meant to fill the space (e.g. team photos, lifestyle shots). Pass an `<img class="w-full h-full object-cover ...">` — `object-position` can be adjusted per image (e.g. `object-left`, `object-top`) to control the crop.
+
+---
+
+## Usage Examples
+
+### 1. Default dark, centered
+
+```blade
+<x-sections.cta>
+    <x-slot:heading>Ready to place your order?</x-slot:heading>
+    <x-slot:subtext>Browse the store and check out in minutes!</x-slot:subtext>
+    <x-slot:actions>
+        <x-ui.button href="{{ route('public.store.view') }}" size="lg" iconAfter="arrow-right">
+            Shop Now
+        </x-ui.button>
+    </x-slot:actions>
+    <x-slot:footer>
+        <a href="mailto:support@pubplus.net">support@pubplus.net</a>
+        <a href="tel:+18777015087">(877) 701-5087</a>
+    </x-slot:footer>
+</x-sections.cta>
+```
+
+### 2. Split, dark theme, contained image (product mockup)
+
+```blade
+<x-sections.cta variant="split" theme="dark">
+    <x-slot:eyebrow>Get Started</x-slot:eyebrow>
+    <x-slot:heading>Ready to place your order?</x-slot:heading>
+    <x-slot:subtext>Browse the store and check out in minutes...</x-slot:subtext>
+    <x-slot:actions>
+        <x-ui.button iconAfter="arrow-right">Shop Now</x-ui.button>
+    </x-slot:actions>
+    <x-slot:footer>
+        <x-ui.link href="mailto:support@pubplus.net">support@pubplus.net</x-ui.link>
+    </x-slot:footer>
+    <x-slot:illustration>
+        <img src="{{ asset('images/magazine-mockup.webp') }}" alt=""
+             class="max-w-xs md:max-w-sm rounded-2xl shadow-2xl">
+    </x-slot:illustration>
+</x-sections.cta>
+```
+
+### 3. Split, light theme, bleeding photo, image on the right
+
+```blade
+<x-sections.cta
+    variant="split"
+    theme="light"
+    image-position="right"
+    image-style="bleed"
+    image-width="md:w-2/5"
+>
+    <x-slot:heading>Support at Every Step</x-slot:heading>
+    <x-slot:subtext>
+        Not sure which product fits your goals? Talk with our support team
+        to get expert advice and start sending with confidence.
+    </x-slot:subtext>
+    <x-slot:actions>
+        <x-ui.button iconAfter="arrow-right">Get in Touch</x-ui.button>
+    </x-slot:actions>
+    <x-slot:illustration>
+        <img src="{{ asset('images/support-team.jpg') }}" alt=""
+             class="w-full h-full object-cover object-left">
+    </x-slot:illustration>
+</x-sections.cta>
+```
+
+### 4. Split, brand theme, image on the left
+
+```blade
+<x-sections.cta variant="split" theme="brand" image-position="left" image-width="md:w-2/5">
+    <x-slot:heading>Every Door Direct Mail, made easy</x-slot:heading>
+    <x-slot:subtext>The most hassle-free way to reach local customers.</x-slot:subtext>
+    <x-slot:actions>
+        <x-ui.button iconAfter="arrow-right">Launch Map Tool</x-ui.button>
+    </x-slot:actions>
+    <x-slot:illustration>
+        <img src="{{ asset('images/eddm-mockup.webp') }}" alt=""
+             class="max-w-xs md:max-w-sm rounded-2xl shadow-2xl">
+    </x-slot:illustration>
+</x-sections.cta>
+```
+
+---
+
+## Adding a New Variant
+
+1. Create `resources/views/components/sections/cta/variants/{name}.blade.php`.
+2. Add an entry to the `$variants` array in `index.blade.php`: 
+   ```php
+   $variants = [    'centered' => 'components.sections.cta.variants.centered',    'split'    => 'components.sections.cta.variants.split',    'new-name' => 'components.sections.cta.variants.new-name',];
+   ```
+3. The new file automatically receives every prop and slot (`$theme`, `$palette`, `$bg`, `$container`, `$rounded`, `$eyebrow`, `$heading`, `$subtext`, `$actions`, `$footer`, `$illustration`, etc.) via the shared `@include($view)` — no extra wiring needed.
+4. Reference `$palette['heading']`, `$palette['subtext']`, `$palette['footer']`, and `$palette['eyebrow']` for text colors so the new variant respects themes automatically, rather than hardcoding colors.
+
+---
+
+## Known Gotchas
+
+- **Flat file collision:** `sections/cta.blade.php` (file) takes priority over `sections/cta/index.blade.php` (directory) if both exist. Always delete the flat file when migrating a component to the directory pattern.
+- **Stale compiled views:** run `php artisan view:clear` after moving/renaming component files — Blade's compiled cache can mask changes mid-development.
+- `bleed `**image style** uses negative margins to escape the section's padding. If you change the section's padding values in `split.blade.php`, double-check the bleed offsets (`-mx-8 md:-mx-14` etc.) still align.
+- **No free-form colors:** intentionally, there's no `bg` prop exposed on `<x-sections.cta>`. New color needs should go through adding/editing a theme in `index.blade.php`, not a one-off class on a page.
+
+---
+
+## Pending / Not Yet Built
+
+- **Icon-ring / accordion CTA pattern** (dark navy background, orbiting icon badges around the image, accordion list instead of heading\+subtext\+button). This is structurally different enough (accordion content, decorative icon layer) that it should likely be its own section component (e.g. `x-sections.feature-accordion`) rather than a CTA variant.
