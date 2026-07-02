@@ -53,7 +53,7 @@ Themes are a fixed, brand-approved set defined once in `index.blade.php`. There 
 
 | Theme | Background | Text | Use case |
 | :-- | :-- | :-- | :-- |
-| `dark` | Neutral gradient (`neutral-400/50 → neutral-500/80`) | White / light gray | Default, general-purpose CTA. |
+| `dark` | Neutral gradient (`neutral-500/50 → neutral-500/80`) | White / light gray | Default, general-purpose CTA. |
 | `light` | `bg-sky-50` | Dark neutral tones | Soft, editorial sections (e.g. "Support at Every Step"). |
 | `brand` | `bg-grad-accent-left` (site accent gradient) | White | High-emphasis, promotional CTAs. |
 | `navy` | `bg-neutral-900` | White / light gray | Placeholder — update with real brand navy if/when defined. |
@@ -199,7 +199,7 @@ Themes are a fixed, brand-approved set defined once in `index.blade.php`. There 
 ## Adding a New Variant
 
 1. Create `resources/views/components/sections/cta/variants/{name}.blade.php`.
-2. Add an entry to the `$variants` array in `index.blade.php`: 
+2. Add an entry to the `$variants` array in `index.blade.php`:
    ```php
    $variants = [
    'centered' => 'components.sections.cta.variants.centered',
