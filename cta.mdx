@@ -14,8 +14,6 @@ resources/views/components/sections/cta/
     └── split.blade.php      # Two-column layout with an illustration/image
 ```
 
-> ⚠️ Never let a flat `sections/cta.blade.php` file exist alongside this directory. Laravel resolves the flat file first and will silently ignore everything below.
-
 ---
 
 ## Props
@@ -76,20 +74,24 @@ Themes are a fixed, brand-approved set defined once in `index.blade.php`. There 
 ### 1. Default dark, centered
 
 ```blade
-<x-sections.cta>
-    <x-slot:heading>Ready to place your order?</x-slot:heading>
-    <x-slot:subtext>Browse the store and check out in minutes!</x-slot:subtext>
-    <x-slot:actions>
-        <x-ui.button href="{{ route('public.store.view') }}" size="lg" iconAfter="arrow-right">
-            Shop Now
-        </x-ui.button>
-    </x-slot:actions>
-    <x-slot:footer>
-        <a href="mailto:support@pubplus.net">support@pubplus.net</a>
-        <a href="tel:+18777015087">(877) 701-5087</a>
-    </x-slot:footer>
-</x-sections.cta>
+    <x-sections.cta>
+        <x-slot:heading>Ready to place your order?</x-slot:heading>
+        <x-slot:subtext>Browse the store and check out in minutes!</x-slot:subtext>
+        <x-slot:actions>
+            <x-ui.button href="{{ route('public.store.view') }}" size="lg" iconAfter="arrow-right">
+                Shop Now
+            </x-ui.button>
+        </x-slot:actions>
+        <x-slot:footer>
+            <a href="mailto:support@pubplus.net">support@pubplus.net</a>
+            <a href="tel:+18777015087">(877) 701-5087</a>
+        </x-slot:footer>
+    </x-sections.cta>
 ```
+
+<Frame>
+  ![Image](/images/image-1.png)
+</Frame>
 
 ### 2. Split, dark theme, contained image (product mockup)
 
@@ -102,14 +104,18 @@ Themes are a fixed, brand-approved set defined once in `index.blade.php`. There 
         <x-ui.button iconAfter="arrow-right">Shop Now</x-ui.button>
     </x-slot:actions>
     <x-slot:footer>
-        <x-ui.link href="mailto:support@pubplus.net">support@pubplus.net</x-ui.link>
+        <a href="mailto:support@pubplus.net">support@pubplus.net</a>
     </x-slot:footer>
     <x-slot:illustration>
-        <img src="{{ asset('images/magazine-mockup.webp') }}" alt=""
-             class="max-w-xs md:max-w-sm rounded-2xl shadow-2xl">
+        <img src="https://pubplus.net/wp-content/uploads/2026/05/subdivision-signs-1.webp" alt=""
+             class="max-w-xs md:max-w-xs rounded-2xl shadow-2xl">
     </x-slot:illustration>
 </x-sections.cta>
 ```
+
+<Frame>
+  ![Image](/images/image-2.png)
+</Frame>
 
 ### 3. Split, light theme, bleeding photo, image on the right
 
@@ -136,21 +142,57 @@ Themes are a fixed, brand-approved set defined once in `index.blade.php`. There 
 </x-sections.cta>
 ```
 
+<Frame>
+  ![Image](/images/image-3.png)
+</Frame>
+
 ### 4. Split, brand theme, image on the left
 
 ```blade
-<x-sections.cta variant="split" theme="brand" image-position="left" image-width="md:w-2/5">
+<x-sections.cta variant="split" theme="navy" image-position="left" image-width="md:w-2/3">
     <x-slot:heading>Every Door Direct Mail, made easy</x-slot:heading>
     <x-slot:subtext>The most hassle-free way to reach local customers.</x-slot:subtext>
     <x-slot:actions>
         <x-ui.button iconAfter="arrow-right">Launch Map Tool</x-ui.button>
     </x-slot:actions>
     <x-slot:illustration>
-        <img src="{{ asset('images/eddm-mockup.webp') }}" alt=""
+        <img src="https://pubplus.net/wp-content/uploads/2026/05/subdivision-signs-1.webp" alt=""
              class="max-w-xs md:max-w-sm rounded-2xl shadow-2xl">
     </x-slot:illustration>
 </x-sections.cta>
 ```
+
+<Frame>
+  ![Image](/images/image-4.png)
+</Frame>
+
+---
+
+## All Variant Colors
+
+**Light**
+
+<Frame>
+  ![Image](/images/image-5.png)
+</Frame>
+
+**Dark**
+
+<Frame>
+  ![Image](/images/image-6.png)
+</Frame>
+
+**Brand** (with slate color button)
+
+<Frame>
+  ![Image](/images/image-7.png)
+</Frame>
+
+**Navy**
+
+<Frame>
+  ![Image](/images/image-8.png)
+</Frame>
 
 ---
 
@@ -159,19 +201,14 @@ Themes are a fixed, brand-approved set defined once in `index.blade.php`. There 
 1. Create `resources/views/components/sections/cta/variants/{name}.blade.php`.
 2. Add an entry to the `$variants` array in `index.blade.php`: 
    ```php
-   $variants = [    'centered' => 'components.sections.cta.variants.centered',    'split'    => 'components.sections.cta.variants.split',    'new-name' => 'components.sections.cta.variants.new-name',];
+   $variants = [
+   'centered' => 'components.sections.cta.variants.centered',
+   'split'    => 'components.sections.cta.variants.split',
+   'new-name' => 'components.sections.cta.variants.new-name',
+   ];
    ```
 3. The new file automatically receives every prop and slot (`$theme`, `$palette`, `$bg`, `$container`, `$rounded`, `$eyebrow`, `$heading`, `$subtext`, `$actions`, `$footer`, `$illustration`, etc.) via the shared `@include($view)` — no extra wiring needed.
 4. Reference `$palette['heading']`, `$palette['subtext']`, `$palette['footer']`, and `$palette['eyebrow']` for text colors so the new variant respects themes automatically, rather than hardcoding colors.
-
----
-
-## Known Gotchas
-
-- **Flat file collision:** `sections/cta.blade.php` (file) takes priority over `sections/cta/index.blade.php` (directory) if both exist. Always delete the flat file when migrating a component to the directory pattern.
-- **Stale compiled views:** run `php artisan view:clear` after moving/renaming component files — Blade's compiled cache can mask changes mid-development.
-- `bleed `**image style** uses negative margins to escape the section's padding. If you change the section's padding values in `split.blade.php`, double-check the bleed offsets (`-mx-8 md:-mx-14` etc.) still align.
-- **No free-form colors:** intentionally, there's no `bg` prop exposed on `<x-sections.cta>`. New color needs should go through adding/editing a theme in `index.blade.php`, not a one-off class on a page.
 
 ---
 
