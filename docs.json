@@ -68,6 +68,12 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Landing Pages",
+            "pages": [
+              "overview-2"
+            ]
           }
         ]
       },

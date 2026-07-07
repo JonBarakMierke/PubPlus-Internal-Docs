@@ -1,0 +1,10 @@
+---
+title: "Overview"
+---
+
+## To spin up a new landing (location / market / use case)
+
+1. Add a view: `resources/views/livewire/pages/public/landing-pages/{new-slug}.blade.php`
+2. Add a partials folder: `resources/views/partials/public/landing-pages/{new-slug}/` (with its own `seo-meta`, `hero`, etc.)
+3. Add a `landings()` entry with its `title` \+ `storeFilterId`
+4. Point a route at `PublicBusinessCards::class` with `->defaults('landing', '{new-slug}')`
