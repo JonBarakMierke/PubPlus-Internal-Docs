@@ -1,0 +1,64 @@
+---
+title: "Quote Creation"
+---
+
+This page aims to break down the flow all quotes go through as they are being created.
+
+## Creating Line Costs
+
+Line Costs & Quote Lines are created at the same time via the build() method on `QuoteLineCostFactory.php`
+
+All line costs have "types", all line costs also fall into two general categories.
+
+1. Unit Costs
+2. Job Costs
+
+Unit costs get multiplied by the total qty & sqft; job costs are one-off costs associated with the quote.
+
+The `QuoteLineCostFactory.php` file is responsible for formatting quote\_line\_costs. It takes each different "type" of line cost and makes sure it has the needed data, and then creates a record for each by calling `$line→costs()→create();`
+
+All line costs have the following array keys.
+
+```php
+$line->costs()->create([
+	       'type' => ,
+            'department_id' => ,
+            'description' => ,
+            'quantity'    => ,
+            'unit_price'  => 0,
+            'total'       => ,
+            'sort_order'  => ,
+            'meta' => ,
+]);
+```
+
+<Note>
+  The merge method makes "workable" data available for the creation of Quote Lines and Line Costs. It doesn't create anything; it merges the two separate arrays from Filament into one, formatted array.
+</Note>
+
+The factory has a merge() method that takes all the line costs it made and merges them into one large array.
+
+The factory also makes a normalize() method available that simply makes the merge method available, making sure all line data is normalized. This is intended for EDITING of line costs instead of creating line costs.
+
+## Creation of quote lines
+
+Once the quote line costs have been created, we can continue creating the quote line.
+
+A couple of the goals when creating quote lines are:
+
+1. Determine expected SQFT
+2. Determine pricing
+   1. Cost `(cost_subtotal)`
+   2. Markup `(markup_percent)`
+   3. Total `(cost_subtotal + markup = total)`
+
+We also fetch the equipment we are using for that line, fetch their cost per minute, and then add it all up together and multiply it by the expected SQFT \+ QTY.
+
+Once all this has been done, we call:
+
+```php
+app(QuoteLineCostFactory::class)
+    ->build($line, $costBlocks, $data);
+```
+
+\$line lets us build quote lines, \$costBlocks helps us build line costs, \$data is passed in case it's needed.

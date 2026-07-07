@@ -1,0 +1,41 @@
+---
+title: "Actions"
+---
+
+Remember that Filament has Actions, and then there is the action pattern.\
+
+## Filament Actions
+
+### Complex Actions
+
+Complex actions are moved out into their own wrapper
+
+```php
+<?php
+
+namespace App\Filament\Support\Actions;
+
+class ActionName
+{
+    public function handle(array $data, $livewire): QuoteLine
+    {
+        return DB::transaction(function () use ($data, $livewire) {
+		// Perform action
+        });
+    }
+}
+```
+
+**Call action in Filament**
+
+```php
+->using(function (/* pass props */) {
+    return app(ActionName::class)->handle();
+}),
+
+// or
+
+->action(function (/* pass props */) {
+    return app(ActionName::class)->handle();
+}),
+```

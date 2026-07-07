@@ -70,6 +70,18 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "StrataPrint Docs",
+        "pages": [
+          "actions",
+          {
+            "group": "Quotes",
+            "pages": [
+              "quote-creation"
+            ]
+          }
+        ]
       }
     ]
   },
