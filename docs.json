@@ -87,7 +87,13 @@
               "quote-creation"
             ]
           },
-          "observers"
+          "observers",
+          {
+            "group": "Labor",
+            "pages": [
+              "overview-3"
+            ]
+          }
         ]
       }
     ]
