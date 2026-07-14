@@ -1,0 +1,158 @@
+---
+title: "Cards"
+---
+
+A flexible grid of "cards" for stats, features, or icon directories. The header (eyebrow / heading / subtext / actions) is optional and slot-driven; the cards themselves come from an `:items` array so any number can render. Renders as `<x-sections.cards>`.
+
+## File Structure
+
+```text
+resources/views/components/sections/cards/
+├── index.blade.php               # Router — resolves variant, theme palette, grid columns
+├── partials/
+│   ├── header.blade.php           # Shared eyebrow/heading/subtext/actions header
+│   ├── item.blade.php             # One card's inner content from an $item array
+│   └── item-inline.blade.php      # Inline item layout (icon-left)
+└── variants/
+    ├── divided.blade.php          # One row, thin dividers between cells (default)
+    ├── separated.blade.php        # Discrete <x-ui.card> cells with spacing
+    └── compact.blade.php          # Icon-driven directory grid
+```
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `variant` | `divided` \| `separated` \| `compact` | `divided` | Picks which file in `variants/` renders. |
+| `theme` | `page` \| `light` \| `dark` \| `navy` \| `brand` | `page` | Text/divider colors as a matched set. The section itself is transparent — the page supplies the background. See [Themes](#themes). |
+| `container` | any Tailwind `max-w-*` class | `max-w-6xl` | Max width of the section content. |
+| `columns` | `2` \| `3` \| `4` | `4` | Cards per row at the `lg` breakpoint (stacks below). |
+| `items` | array | `[]` | Array of item arrays. See [Item Shape](#item-shape). |
+
+Bind arrays/ints with a colon: `:items="[...]"`, `:columns="3"` (string `columns="3"` also works).
+
+---
+
+## Slots
+
+All optional and `@isset`-guarded.
+
+| Slot | Description |
+| :-- | :-- |
+| `eyebrow` | Small uppercase label above the heading. |
+| `heading` | Section `<h2>` (via `x-ui.heading`). Wrap part in a muted `<span>` for a two-tone display look. |
+| `subtext` | Supporting paragraph under the heading. |
+| `actions` | Button(s) — typically an `x-ui.button`. |
+
+---
+
+## Item Shape
+
+Every key is optional, so the same array covers stats and features. Rendered top-to-bottom in this order:
+
+```php
+[
+    'icon'   => 'chart-bar',          // heroicon/phosphor name — shown in an accent badge
+    'label'  => 'Revenue Increase',   // small uppercase accent label
+    'value'  => '$3.9M',              // large display value (stats)
+    'title'  => 'Streamlined work',   // medium heading (features)
+    'text'   => 'Longer description…', // body copy
+    'iconBg' => 'bg-emerald-500',     // compact variant only — solid badge color
+]
+```
+
+The `compact` variant is icon-driven and only reads `icon`, `iconBg`, `title`, `text`. Pass `iconBg` to give each badge its own color; omit it for a soft accent badge.
+
+---
+
+## Themes
+
+The section is transparent — `theme` only sets text/divider treatment. Use `page` on the plain page surface (auto light/dark); use `light`/`dark`/`navy`/`brand` when the grid sits on a colored band the page supplies.
+
+| Theme | Use case |
+| :-- | :-- |
+| `page` | Plain page surface; auto-adapts to light/dark. Default. |
+| `light` | Grid on a light band. |
+| `dark` | Grid on a dark band. |
+| `navy` | Grid on a `neutral-900` band. |
+| `brand` | Grid on the accent-gradient band. |
+
+---
+
+## Variant Notes
+
+- **divided** — All cells in one row separated by thin dividers. Best for a stat strip. In this variant the `text` is pinned to the bottom for equal-height cells.
+- **separated** — Each item is its own bordered `<x-ui.card>` with breathing room. Best for feature grids.
+- **compact** — Centered header \+ an icon-left directory grid. Reads only `icon`, `iconBg`, `title`, `text`.
+
+---
+
+## Usage Examples
+
+### 1. Divided · stats (default)
+
+```blade
+<x-sections.cards :items="[
+    ['label' => 'ROI',              'value' => '384%',   'text' => 'ClickUp delivered 384% ROI over three years.'],
+    ['label' => 'Revenue Increase', 'value' => '\$3.9M',  'text' => 'Projects drove \$3.9M in revenue gains.'],
+    ['label' => 'Hours Saved',      'value' => '92,400', 'text' => 'Organizations saved 92,400 hours.'],
+    ['label' => 'Payback',          'value' => '<6 mo',  'text' => 'Customers reached payback in under six months.'],
+]">
+    <x-slot:heading>It's like adding 15 full-time employees</x-slot:heading>
+    <x-slot:subtext>Third-party research shows an average of 30k hours saved per year.</x-slot:subtext>
+    <x-slot:actions>
+        <x-ui.button href="{{ route('public.quote-request.view') }}">Get started</x-ui.button>
+    </x-slot:actions>
+</x-sections.cards>
+```
+
+<Frame>
+  ![Cards — divided](/images/cards-divided.png)
+</Frame>
+
+### 2. Separated · features (three across)
+
+```blade
+<x-sections.cards variant="separated" columns="3" :items="[
+    ['icon' => 'bolt',             'title' => 'Fast turnaround', 'text' => 'Proofs back in hours, not days.'],
+    ['icon' => 'swatch',           'title' => 'Real materials',  'text' => 'Order swatches before you commit.'],
+    ['icon' => 'chat-bubble-left', 'title' => 'Human support',   'text' => 'Talk to a real person, every step.'],
+]">
+    <x-slot:eyebrow>Why PubPlus</x-slot:eyebrow>
+    <x-slot:heading>Everything you need to ship print</x-slot:heading>
+</x-sections.cards>
+```
+
+<Frame>
+  ![Cards — separated](/images/cards-separated.png)
+</Frame>
+
+### 3. Compact · icon-left directory grid
+
+```blade
+<x-sections.cards variant="compact" columns="4" :items="[
+    ['icon' => 'check-circle',  'iconBg' => 'bg-emerald-500', 'title' => 'Tasks',      'text' => 'Never lose track of work'],
+    ['icon' => 'view-columns',  'iconBg' => 'bg-blue-500',    'title' => 'Board view', 'text' => 'Kanban-style workflow'],
+    ['icon' => 'hashtag',       'iconBg' => 'bg-violet-500',  'title' => 'Chat',       'text' => 'Real-time team messaging'],
+    ['icon' => 'document-text', 'iconBg' => 'bg-sky-500',     'title' => 'Docs',       'text' => 'Collaborative documentation'],
+]">
+    <x-slot:eyebrow>The PubPlus Platform</x-slot:eyebrow>
+    <x-slot:heading>Dashboards is just the <span class="text-neutral-400">beginning</span></x-slot:heading>
+    <x-slot:subtext>Tasks, docs, chat, and more in a single, converged app.</x-slot:subtext>
+</x-sections.cards>
+```
+
+<Frame>
+  ![Cards — compact](/images/cards-compact.png)
+</Frame>
+
+---
+
+## Adding a New Variant
+
+1. Create `resources/views/components/sections/cards/variants/{name}.blade.php`.
+2. Add an entry to the `$variants` array in `index.blade.php`.
+3. The new file receives `$items`, `$palette`, `$gridCols`, `$container`, and the header slots. Include the shared header with `@include('components.sections.cards.partials.header')` and render each item via `@include('components.sections.cards.partials.item')`.
+4. Reference `$palette['title']`, `$palette['text']`, `$palette['label']`, etc. so the variant respects themes automatically.

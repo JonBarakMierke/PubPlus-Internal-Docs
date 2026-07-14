@@ -58,7 +58,11 @@
               {
                 "group": "Sections",
                 "pages": [
-                  "cta"
+                  "cta",
+                  "hero",
+                  "cards",
+                  "image-and-text",
+                  "marquee"
                 ]
               },
               {

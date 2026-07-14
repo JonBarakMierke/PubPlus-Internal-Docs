@@ -1,0 +1,105 @@
+---
+title: "Image & Text"
+---
+
+A two-column section pairing an image with a heading, body copy, and an optional CTA. Renders as `<x-sections.image-and-text>`.
+
+## File Structure
+
+```text
+resources/views/components/sections/image-and-text/
+└── index.blade.php   # Full component (no variants)
+```
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `image` | image URL | `null` | Source for the image column. **Always pass one** — an empty value renders a broken image. |
+| `imageSide` | `left` \| `right` | `left` | Which side the image sits on (`right` flips to `md:flex-row-reverse`). |
+| `aspect` | see [Aspect Ratios](#aspect-ratios) | `video` | Aspect ratio of the image frame. |
+| `container` | any Tailwind `max-w-*` class | `max-w-7xl` | Max width of the section content. |
+| `ctaType` | `button` \| `link` | `button` | How the `cta` slot renders. |
+| `ctaLink` | URL | `/` | Destination for the CTA. |
+
+Kebab-case in Blade tags, e.g. `image-side="right"`, `cta-type="link"`, `cta-link="/about-us"`.
+
+---
+
+## Slots
+
+| Slot | Required | Description |
+| :-- | :-- | :-- |
+| `heading` | No | Heading, rendered via `x-ui.heading` at `size="xl"`. |
+| _(default)_ | No | Body content — wrapped in `x-ui.text`. Renders as a `<div>`, so it's safe to nest `<p>` and `<ul>` inside. |
+| `cta` | No | CTA label. Renders as an `x-ui.button` (or `x-ui.link` when `cta-type="link"`) pointing at `ctaLink`. |
+
+---
+
+## Aspect Ratios
+
+| Value | Result |
+| :-- | :-- |
+| `square` | `aspect-square` |
+| `portrait` | `aspect-[3/4]` |
+| `landscape` | `aspect-[4/3]` |
+| `video` | `aspect-video` (default) |
+| `wide` | `aspect-[21/9]` |
+| `none` | No aspect wrapper — image renders at its natural height. |
+| _(custom)_ | Any raw Tailwind aspect class, e.g. `aspect="aspect-[2/1]"`. |
+
+---
+
+## Usage Examples
+
+### 1. Image left, heading \+ body \+ button
+
+```blade
+<x-sections.image-and-text image="{{ asset('images/storefront.webp') }}" aspect="landscape"
+    cta-link="{{ route('public.quote-request.view') }}">
+    <x-slot:heading>
+        <span class="font-lemonmilk font-bold text-neutral-900 dark:text-neutral-50">Built for your business</span>
+    </x-slot:heading>
+
+    <p>When an off-the-shelf website won't do, we design and develop custom solutions from the ground up.</p>
+
+    <ul class="flex flex-col gap-2.5 mt-5">
+        <li class="flex items-start gap-2.5">
+            <span class="font-typold text-sm text-neutral-600 dark:text-neutral-300">Tools designed for your operations.</span>
+        </li>
+    </ul>
+
+    <x-slot:cta>Get a Quote</x-slot:cta>
+</x-sections.image-and-text>
+```
+
+<Frame>
+  ![Image & Text — image left](/images/image-and-text-left.png)
+</Frame>
+
+### 2. Image right, link-style CTA
+
+```blade
+<x-sections.image-and-text image="{{ asset('images/support.webp') }}" image-side="right" aspect="video"
+    cta-type="link" cta-link="/about-us">
+    <x-slot:heading>Support at every step</x-slot:heading>
+
+    Not sure which product fits your goals? Talk with our support team to start with confidence.
+
+    <x-slot:cta>Learn more</x-slot:cta>
+</x-sections.image-and-text>
+```
+
+<Frame>
+  ![Image & Text — image right](/images/image-and-text-right.png)
+</Frame>
+
+---
+
+## Notes
+
+- **Alternate sides** down a page (`left`, then `right`, then `left`, …) for a natural zig-zag rhythm.
+- The default slot is wrapped in `x-ui.text` (a `<div>`), so paragraphs and lists nest cleanly — no invalid `<p><ul></p>` nesting.
+- There are no variants or themes; the section is transparent and inherits the surrounding page surface.

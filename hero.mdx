@@ -1,0 +1,210 @@
+---
+title: "Hero"
+---
+
+Reusable, themeable marketing hero. A thin router (`index.blade.php`) picks a variant and resolves a shared color palette; each layout lives in `variants/`. Renders as `<x-sections.hero>`.
+
+## File Structure
+
+```text
+resources/views/components/sections/hero/
+├── index.blade.php               # Router — resolves variant + theme palette
+└── variants/
+    ├── blueprint.blade.php        # Centered hero on a faint graph-paper grid (default)
+    ├── editorial.blade.php        # Magazine split: full-bleed image + colored copy panel
+    ├── display.blade.php          # One giant word bleeding off a solid color field
+    └── mosaic.blade.php           # Top-left copy over pixel-dissolve fields
+```
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `variant` | `blueprint` \| `editorial` \| `display` \| `mosaic` | `blueprint` | Picks which file in `variants/` renders. |
+| `theme` | `page` \| `dark` \| `light` \| `brand` \| `navy` \| `natural` | `page` | Background/text color set. `page` auto-adapts to light/dark mode; `natural` is the warm "zine" palette. See [Themes](#themes). |
+| `container` | any Tailwind `max-w-*` class | `max-w-3xl` | Content column width. `blueprint` only. |
+| `grid` | `true` \| `false` | `true` | Show the faint graph-paper background. `blueprint` only. |
+| `frame` | `true` \| `false` | `true` | Show the vertical guide lines \+ corner crosshairs. `blueprint` only. |
+| `imagePosition` | `left` \| `right` | `left` | Which side the image sits on. `editorial` only. |
+| `illustrationClass` | any Tailwind classes | `''` | Extra classes on the illustration wrapper (positioning/animation). `display` only. |
+
+Kebab-case in Blade tags, e.g. `image-position="right"`. Booleans bind with a colon: `:grid="false"`.
+
+---
+
+## Slots
+
+All slots are optional and independently `@isset`-guarded. The set available depends on the variant.
+
+| Slot | Variants | Description |
+| :-- | :-- | :-- |
+| `eyebrow` | blueprint, editorial, mosaic | Small uppercase label/pill above the heading. |
+| `heading` | all | Main `<h1>`. In `editorial`, wrap a word in `<em>` for an italic accent; in `display` this is the oversized word (rendered all-caps via Lemonmilk). |
+| `subtext` | blueprint, editorial, mosaic | Supporting paragraph under the heading. |
+| `actions` | blueprint, editorial, mosaic | Button(s) or a text link. |
+| `illustration` | blueprint, display | Image/card, rendered raw — you style it. |
+| `image` | editorial | Full-bleed image for the image column. |
+| `nav` | editorial, display | Top-left menu/brand label. |
+| `meta` | editorial, display | Top-right label or links/actions. |
+| `detail` | editorial | Small floating photo inside the copy panel. |
+| `footer` | editorial, mosaic | Caption at the bottom (in `mosaic` it sits over the dark pixel mass). |
+
+---
+
+## Themes
+
+Themes are a fixed, brand-approved set defined once in `index.blade.php`. There is **no free-form** `bg` **prop**. Each theme resolves a full palette (`heading`, `subtext`, `grid`, `frame`, `cross`, `panel`, `menu`, `footer`, `rule`, `surface`, `pixel`, `onPixel`, `eyebrow`) so all variants respond to the same key.
+
+| Theme | Use case |
+| :-- | :-- |
+| `page` | Sits on the plain page surface; auto-adapts to light/dark mode. Default. |
+| `dark` | Hero placed on a dark band. |
+| `light` | Hero placed on a light band. |
+| `brand` | Accent-gradient band; high-emphasis. |
+| `navy` | `bg-neutral-900` band. |
+| `natural` | Warm editorial "zine" palette (drives `--zine-*` / `--warm-*` tokens). Best with `editorial`/`display`. |
+
+**To add a new theme:** add one entry to the `$themes` array in `index.blade.php` with the full set of palette keys. It becomes available to every variant immediately.
+
+<Note>
+  `<x-ui.eyebrow>` only supports `dark`/`light`/`brand`/`navy`, so the `page`/`natural` themes forward `light` for the eyebrow — it does not auto-adapt to dark mode.
+</Note>
+
+---
+
+## Variant Notes
+
+- **blueprint** — Centered column over an optional graph-paper grid and guide-line frame. Turn off decoration with `:grid="false" :frame="false"`. The `illustration` slot renders below the copy at `max-w-4xl`.
+- **editorial** — Magazine-style split: a full-bleed `image` on one side and a colored copy panel on the other. Pair with `theme="natural"`.
+- **display** — One giant `heading` word sized with `clamp(5rem, 26vw, 24rem)` that bleeds past the clipped section edges, with a slim top bar (`nav` / `meta`). Pairs best with `brand`, `navy`, `natural`, or `dark`.
+- **mosaic** — Copy pinned top-left over seeded pixel-dissolve fields that never overlap the text. Aligns to the top of the page (`min-h-screen`, no top margin) and pads down for an overlaid navbar — **don't render a navbar inside it.** The square color is the theme's `pixel` token.
+
+---
+
+## Usage Examples
+
+### 1. Blueprint (default) — eyebrow, heading, subtext, button, image
+
+```blade
+<x-sections.hero variant="blueprint">
+    <x-slot:eyebrow>Web Solutions</x-slot:eyebrow>
+    <x-slot:heading>Websites that work as hard as you do</x-slot:heading>
+    <x-slot:subtext>Design, build, and launch — one team, start to finish.</x-slot:subtext>
+    <x-slot:actions>
+        <x-ui.button href="{{ route('public.quote-request.view') }}" size="lg" iconAfter="arrow-right">
+            Get a Quote
+        </x-ui.button>
+    </x-slot:actions>
+    <x-slot:illustration>
+        <img src="{{ asset('images/site-mockup.webp') }}" alt="" class="rounded-2xl shadow-2xl w-full">
+    </x-slot:illustration>
+</x-sections.hero>
+```
+
+<Frame>
+  ![Hero — blueprint](/images/hero-blueprint.png)
+</Frame>
+
+### 2. Blueprint — decoration off (plain centered)
+
+```blade
+<x-sections.hero variant="blueprint" :grid="false" :frame="false">
+    <x-slot:heading>Simple and clean</x-slot:heading>
+    <x-slot:actions>
+        <x-ui.button href="{{ route('public.store.view') }}" size="lg" iconAfter="arrow-right">Shop Now</x-ui.button>
+    </x-slot:actions>
+</x-sections.hero>
+```
+
+<Frame>
+  ![Hero — blueprint minimal](/images/hero-blueprint-minimal.png)
+</Frame>
+
+### 3. Editorial — natural theme, image on the left
+
+```blade
+<x-sections.hero variant="editorial" theme="natural" image-position="left">
+    <x-slot:image>
+        <img src="{{ asset('images/city-illustration.webp') }}" alt="" class="absolute inset-0 h-full w-full object-cover">
+    </x-slot:image>
+    <x-slot:nav>Menu / Stories / About</x-slot:nav>
+    <x-slot:meta>§ Index</x-slot:meta>
+    <x-slot:heading>Print <em>Unplugged</em>: A Truly Tactile Experience</x-slot:heading>
+    <x-slot:detail>
+        <img src="{{ asset('images/polaroid.webp') }}" alt="" class="rounded-sm">
+    </x-slot:detail>
+    <x-slot:footer>Beyond the screen, print pulsates with texture, permanence, and craft.</x-slot:footer>
+</x-sections.hero>
+```
+
+<Frame>
+  ![Hero — editorial](/images/hero-editorial.png)
+</Frame>
+
+### 4. Display — brand theme, animated illustration
+
+```blade
+<x-sections.hero variant="display" theme="brand" illustration-class="motion-safe:animate-bounce">
+    <x-slot:nav>
+        <span class="font-lemonmilk font-bold tracking-wide">PubPlus</span>
+        <span class="opacity-70">— Print &amp; Web</span>
+    </x-slot:nav>
+    <x-slot:meta>
+        <a href="{{ route('public.quote-request.view') }}" class="hover:opacity-70">Get a Quote →</a>
+    </x-slot:meta>
+    <x-slot:illustration>
+        <img src="{{ asset('images/spark.webp') }}" alt="" class="w-full drop-shadow-xl rotate-6">
+    </x-slot:illustration>
+    <x-slot:heading>Print</x-slot:heading>
+</x-sections.hero>
+```
+
+<Frame>
+  ![Hero — display](/images/hero-display.png)
+</Frame>
+
+### 5. Mosaic — page theme (reference look)
+
+```blade
+<x-sections.hero variant="mosaic" theme="page">
+    <x-slot:heading>Grow Beyond the Algorithm</x-slot:heading>
+    <x-slot:subtext>Cutting-edge strategies with data-driven marketing to boost your visibility.</x-slot:subtext>
+    <x-slot:actions>
+        <a href="{{ route('public.quote-request.view') }}"
+           class="font-typold text-sm tracking-widest uppercase text-accent hover:opacity-70">
+            [ Leave a Request ]
+        </a>
+    </x-slot:actions>
+    <x-slot:footer>We help your brand rise higher, get discovered faster.</x-slot:footer>
+</x-sections.hero>
+```
+
+<Frame>
+  ![Hero — mosaic](/images/hero-mosaic.png)
+</Frame>
+
+---
+
+## Adding a New Variant
+
+1. Create `resources/views/components/sections/hero/variants/{name}.blade.php`.
+2. Add an entry to the `$variants` array in `index.blade.php`:
+   ```php
+   $variants = [
+       'blueprint' => 'components.sections.hero.variants.blueprint',
+       'editorial' => 'components.sections.hero.variants.editorial',
+       'display'   => 'components.sections.hero.variants.display',
+       'mosaic'    => 'components.sections.hero.variants.mosaic',
+       'new-name'  => 'components.sections.hero.variants.new-name',
+   ];
+   ```
+3. The new file receives every prop, the resolved `$palette`, and all slots via the shared `@include($view)`.
+4. Reference `$palette['heading']`, `$palette['subtext']`, etc. so the variant respects themes automatically instead of hardcoding colors.
+
+---
+
+## Pending / Not Yet Built
+
+- **`heading-and-cta` variant** — stubbed in `variants/` but not implemented or registered in the `$variants` map. Intended to let you choose a CTA type (form or button) with an optional image slot.

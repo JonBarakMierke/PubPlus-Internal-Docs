@@ -1,0 +1,76 @@
+---
+title: "Marquee"
+---
+
+An infinite, auto-scrolling horizontal strip of images with soft edge-fade masks — good for logo walls or screenshot ribbons. Renders as `<x-sections.marquee>`.
+
+## File Structure
+
+```text
+resources/views/components/sections/marquee/
+└── index.blade.php   # Full component (markup + scoped <style>)
+```
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `images` | array of image URLs | `[]` | The images to scroll. Auto-duplicated to fill the width and loop seamlessly. |
+| `speed` | number (seconds) | `40` | Duration of one full loop, in seconds. **Lower = faster** (it's a duration, not a rate). |
+| `stopOnHover` | `true` \| `false` | `true` | Pause the animation while the pointer is over the strip. |
+
+Bind arrays/numbers/booleans with a colon: `:images="$logos"`, `:speed="20"`, `:stop-on-hover="false"`.
+
+---
+
+## Slots
+
+None — this section is entirely driven by the `images` prop.
+
+---
+
+## How It Works
+
+- The list is repeated until it fills a minimum visible width (~1400px), then duplicated once more so the loop has no visible seam.
+- Movement is a pure CSS keyframe animation (`translateX`) — no JS. Duration comes from `speed`; the travel distance is computed from the filled image count.
+- Left/right fade masks use the `--color-background` token, so the strip blends into whatever surface it sits on.
+- `stopOnHover` toggles a `pause-on-hover` class that sets `animation-play-state: paused` on hover.
+
+---
+
+## Usage Examples
+
+### 1. Default (auto-scroll, pause on hover)
+
+```blade
+<x-sections.marquee :images="[
+    asset('images/logos/acme.webp'),
+    asset('images/logos/globex.webp'),
+    asset('images/logos/initech.webp'),
+    asset('images/logos/umbrella.webp'),
+]" />
+```
+
+<Frame>
+  ![Marquee — default](/images/marquee-default.png)
+</Frame>
+
+### 2. Faster, no pause on hover
+
+```blade
+<x-sections.marquee :images="$logos" :speed="20" :stop-on-hover="false" />
+```
+
+<Frame>
+  ![Marquee — fast](/images/marquee-fast.png)
+</Frame>
+
+---
+
+## Notes
+
+- Items are `10rem` wide on mobile and `16rem` at `md+`, with `1rem` horizontal padding each.
+- Pass at least a few images; with too few, the fill loop still works but the pattern repeats more obviously.
+- To switch to a constant px/sec speed instead of a fixed duration, an alternate `$duration = $totalWidth / $speed` line is present (commented) in `index.blade.php`.
