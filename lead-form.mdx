@@ -1,0 +1,138 @@
+---
+title: "Lead Form"
+---
+
+Reusable, condensed, guest-facing lead-capture form. Collects a name and email, emails the production team, and captures a PostHog analytics event. Every page-specific detail — copy, analytics source, email subject, styling theme — is passed in when the component is placed, so one component \+ one mailer serves every landing page. Rendered as `<livewire:components.public.lead-form>`.
+
+## File Structure
+
+```text
+app/Livewire/Components/Public/LeadForm.php              # Component — validation, mail, analytics
+app/Mail/Public/LeadNotification.php                     # Mailable sent to the team on submit
+resources/views/
+├── livewire/components/public/lead-form.blade.php       # Form view — themed inputs, success state
+└── mail/public/lead/lead-mail.blade.php                 # Markdown email template
+```
+
+---
+
+## Props
+
+All props are passed as attributes on the `<livewire:...>` tag (kebab-case). `source` and `sourceLabel` are required; everything else has a sensible default.
+
+| Prop | Type | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `source` | `string` | — **required** | Analytics stem. Emits a PostHog event named `{source}_lead_submitted` (e.g. `paperlink` → `paperlink_lead_submitted`). |
+| `source-label` | `string` | — **required** | Human-readable origin used in the notification email, e.g. `the PaperLink page`. |
+| `subject` | `string` | `New Lead | PubPlus Site` | Subject line of the notification email. |
+| `theme` | `dark` \| `light` | `dark` | Input styling. See [Themes](#themes). |
+| `button-label` | `string` | `Get Started` | Text on the submit button. |
+| `success-title` | `string` | `Request received!` | Heading shown after a successful submit. |
+| `success-text` | `string` | `Thanks — we'll reach out shortly.` | Body copy shown after a successful submit. |
+| `helper-text` | `string` | `No spam — just a quick note to follow up.` | Fine-print line under the inputs. |
+
+All configuration props are `#[Locked]` — they're set on `mount()` and can't be tampered with from the client, but persist across Livewire requests (`submit()` runs on a later request).
+
+---
+
+## Themes
+
+The `theme` prop only controls how the **inputs** look, so the form sits correctly on either a dark or light band. Everything else (button, success check, copy) is identical across themes.
+
+| Theme | Inputs | Use case |
+| :-- | :-- | :-- |
+| `dark` (default) | Glassy — translucent white fill, blurred backdrop, light text | Place on a genuinely dark section/band. |
+| `light` | Solid white fill, dark text | Place on a light or gradient band. |
+
+Any value other than `light` is treated as `dark`.
+
+---
+
+## Behavior
+
+- **Validation** — `name` (required, 2–100 chars) and `email` (required, valid email, ≤255 chars). Inline, per-field error messages render under each input; the field border turns red on error.
+- **Submit** — On a valid submit the component:
+  1. Emails `config('mail.internal_quotes_to')` (falls back to `jon@pubplus.net`) via the queued `LeadNotification` mailable, using the passed `subject` and `source-label`.
+  2. Captures a PostHog event `{source}_lead_submitted` keyed on the submitter's email.
+  3. Resets the fields and flips to the success state.
+- **Loading state** — The button shows a spinner and “Sending…”, and disables itself while the request is in flight.
+- **Success state** — Replaces the form with a check badge plus `success-title` / `success-text`.
+- **Multiple per page** — Field `id`s are namespaced with the Livewire component id, so several lead forms can safely coexist on one page.
+
+---
+
+## Usage Examples
+
+### 1. Dark band (PaperLink page)
+
+```blade
+<livewire:components.public.lead-form
+    source="paperlink"
+    source-label="the PaperLink page"
+    subject="New PaperLink Lead | PubPlus Site"
+    theme="dark"
+    button-label="Get Started"
+    success-title="You're on the list!"
+    success-text="Thanks — we'll reach out shortly to set up your first PaperLink campaign."
+    helper-text="No spam. Just a quick note to set you up with PaperLink."
+/>
+```
+
+### 2. Light band, inside a CTA section (Website Solutions page)
+
+```blade
+<x-sections.cta theme="light">
+    <x-slot:heading>Ready to have a site that works?</x-slot:heading>
+    <x-slot:subtext>Contact us for a free 10-minute website consultation call.</x-slot:subtext>
+    <x-slot:actions>
+        <livewire:components.public.lead-form
+            source="website_solutions"
+            source-label="the Website Solutions page"
+            subject="New Website Lead | PubPlus Site"
+            theme="light"
+            button-label="Book My Call"
+            success-title="Request received!"
+            success-text="Thanks — we'll reach out shortly to set up your free website consultation."
+            helper-text="No spam — just a quick note to set up your free consultation."
+        />
+    </x-slot:actions>
+</x-sections.cta>
+```
+
+### 3. Minimal (defaults only)
+
+```blade
+<livewire:components.public.lead-form
+    source="homepage"
+    source-label="the homepage"
+/>
+```
+
+---
+
+## The Notification Email
+
+Submissions send `App\Mail\Public\LeadNotification` — a queued (`ShouldQueue`) markdown mailable rendered from `mail/public/lead/lead-mail.blade.php`.
+
+- **To:** `config('mail.internal_quotes_to')` → falls back to `jon@pubplus.net`.
+- **Subject:** the `subject` prop.
+- **Body:** the submitted `name` / `email`, plus the `source-label` so the team knows which page the lead came from.
+
+To change where leads are delivered, set `mail.internal_quotes_to` — no component change needed.
+
+---
+
+## Adding This Form to a New Page
+
+1. Drop `<livewire:components.public.lead-form>` wherever the CTA lives.
+2. Set `source` (a unique analytics stem) and `source-label` (a human origin string) — these are required.
+3. Pick a `theme` that matches the band it sits on (`dark` or `light`).
+4. Override any copy props (`subject`, `button-label`, `success-*`, `helper-text`) to fit the page.
+
+No new component, mailer, or route is needed — the same component and mailable serve every landing page.
+
+**Example of what it looks like**
+
+<Frame>
+  ![Image](/images/image-10.png)
+</Frame>

@@ -1,0 +1,130 @@
+---
+title: "Tabs"
+---
+
+Vertical, tabbed showcase section with an optional autoplay timer. A nav rail on the left switches the panel card on the right. Renders as `<x-ui.tabs>`.
+
+## File Structure
+
+```text
+resources/views/components/ui/
+└── tabs.blade.php   # Single-file component — nav rail + panels, driven by an :items array
+```
+
+Unlike section components, `tabs` is a single self-contained file (no `index` router or `variants/` directory). All content is passed as a structured `:items` array rather than through named slots.
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `items` | `array` | `[]` | The tabs to render. Each entry is an associative array — see [Item Shape](#item-shape). |
+| `autoplay` | `bool` | `false` | Step through tabs automatically on a timer. When on, the active tab's accent bar fills as a progress indicator, then advances (looping). |
+| `interval` | `int` (ms) | `6000` | Milliseconds each tab stays active before advancing. Only used when `autoplay` is `true`. |
+| `pauseOnHover` | `bool` | `true` | Pause the autoplay timer while the pointer is over the component; resume on leave. |
+| `aspect` | any Tailwind class \| `null` | `null` | Optional min-height hint applied to the panel area, e.g. `min-h-80`. Keeps the panel from resizing as tabs of different lengths swap in. |
+
+Kebab-case in Blade tags, e.g. `pause-on-hover="false"`. The component also accepts arbitrary `class`/attributes, which merge onto the outer wrapper (default layout: `w-full flex flex-col md:flex-row gap-6 md:gap-10`).
+
+---
+
+## Item Shape
+
+Each element of `items` is an associative array with these keys:
+
+| Key | Type | Required | Description |
+| :-- | :-- | :-- | :-- |
+| `title` | `string` | Yes | Nav-rail label. Also used as the panel headline when `heading` is omitted. |
+| `subtitle` | `string` | No | Small caption shown under the label — **only visible on the active tab** (fades in). |
+| `heading` | `string` | No | Panel headline (`<h3>`). Falls back to `title` if not set. |
+| `body` | `string` | No | Supporting paragraph in the panel. |
+| `bullets` | `string[]` | No | List of items, each rendered with an accent checkmark. |
+
+Omit any optional key you don't need — each is independently guarded.
+
+---
+
+## Behavior
+
+- **Selection** — clicking a nav item activates its panel; the panel content transitions in (fade \+ slight upward slide).
+- **Autoplay progress** — with `autoplay` on, the accent bar beside the active tab fills from top to bottom over `interval` ms, then advances to the next tab. On the last tab it loops back to the first.
+- **Without autoplay** — the accent bar simply shows full-height beside the active tab (no animation).
+- **Pause / resume** — when `pauseOnHover` is on, hovering pauses the timer at its current progress and resumes from that exact point on mouse-leave (elapsed time is preserved, not reset).
+- **Cleanup** — the animation frame loop is cancelled on teardown, so the component is safe inside Livewire-swapped DOM.
+
+Interactivity is entirely Alpine-driven (`x-data` on the wrapper) — no server round-trips.
+
+---
+
+## Accessibility
+
+- Nav rail is `role="tablist"` with `aria-orientation="vertical"`.
+- Each button is `role="tab"` with `:aria-selected` bound to the active state.
+- Each panel is `role="tabpanel"`.
+
+---
+
+## Usage Examples
+
+### 1. Static tabs (no autoplay)
+
+```blade
+<x-ui.tabs :items="[
+    [
+        'title'    => 'Design',
+        'subtitle' => 'Start with a proof',
+        'heading'  => 'Design that lands',
+        'body'     => 'Upload your artwork or start from a template — we proof every job before it prints.',
+        'bullets'  => ['Free digital proofs', 'Print-ready file checks', 'Template library'],
+    ],
+    [
+        'title'    => 'Print',
+        'subtitle' => 'Expert press team',
+        'body'     => 'Your order is in the hands of our press team from day one.',
+        'bullets'  => ['Offset & digital', 'Premium stocks'],
+    ],
+    [
+        'title' => 'Deliver',
+        'body'  => 'Ship direct or hand off to the post office — your choice.',
+    ],
+]" />
+```
+
+### 2. Autoplaying, 4s per tab, with a min-height
+
+```blade
+<x-ui.tabs
+    :autoplay="true"
+    :interval="4000"
+    aspect="min-h-80"
+    :items="$features"
+/>
+```
+
+Where `$features` is built in the controller/component:
+
+```php
+$features = [
+    ['title' => 'Fast turnaround', 'body' => '...', 'bullets' => ['...']],
+    ['title' => 'On-brand',        'body' => '...'],
+];
+```
+
+### 3. Autoplay that keeps running on hover
+
+```blade
+<x-ui.tabs
+    :autoplay="true"
+    :pause-on-hover="false"
+    :items="$items"
+/>
+```
+
+---
+
+## Notes
+
+- **Styling** — panels use the `card-w-b` utility for the card surface; headings use `font-lemonmilk`, body/bullets use `font-typold`. The accent bar and checkmarks use the `bg-accent` / `text-accent` design tokens, so the component follows the active brand accent automatically.
+- **Dark mode** — nav labels, tracks, and panel text all have `dark:` variants built in; no extra configuration needed.
+- **`x-cloak`** — inactive panels and the progress fill are `x-cloak`-guarded, so ensure the global `[x-cloak]{display:none}` rule is present (it is, project-wide) to avoid a flash of all panels on load.

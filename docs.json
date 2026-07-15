@@ -68,7 +68,14 @@
               {
                 "group": "UI",
                 "pages": [
-                  "eyebrow"
+                  "eyebrow",
+                  "Tabs"
+                ]
+              },
+              {
+                "group": "Livewire",
+                "pages": [
+                  "lead-form"
                 ]
               }
             ]
