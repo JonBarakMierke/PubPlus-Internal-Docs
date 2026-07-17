@@ -1,0 +1,167 @@
+---
+title: "SEO & Structured Data"
+description: "How page metadata and JSON-LD are resolved for models and standalone URLs, and how the GEO package fits in."
+---
+
+Every public page's `<head>` — title, meta tags, Open Graph, Twitter cards, and JSON-LD — is resolved by a single system: `App\Seo\SeoManager`, rendered through the `<x-seo>` Blade component. It replaces both `ralphjsmit/laravel-seo` and the `hszope/laravel-aigeo` ("GEO") package's own `<x-geo-head>` component, while still using pieces of GEO internally.
+
+{/* TODO: this page type (architecture note) isn't codified in the docs skill yet — structure/voice here is a first pass, not a confirmed convention. */}
+
+## How a page's SEO gets resolved
+
+Every guest layout includes one line in `<head>`:
+
+```blade
+<x-seo :model="$product ?? null" :fallback-title="$title ?? null" />
+```
+
+`App\View\Components\Seo` calls `SeoManager::resolve($model, $path)` in its constructor and renders `resources/views/components/seo.blade.php`, which prints the meta tags, Open Graph, Twitter tags, and one `<script type="application/ld+json">` per entry in `$seo->schemas`.
+
+`resolve()` builds up an `App\Seo\SeoData` bag in three layers, lowest to highest precedence:
+
+| Layer | Source | Applies to |
+| :-- | :-- | :-- |
+| Config fallbacks | `config('seo.*')` | Every page — `site_name`, `default_robots`, `fallback_image`, etc. |
+| Model meta \+ GEO schema | `$model->seoMeta` (via `HasSeoMeta`) and `$model->geoProfile()` (via `HasGeoProfile`) | Only when a `$model` is passed to `<x-seo>` |
+| Matching `SeoPage` record | A `SeoPage` row whose `path` matches the current request | Only if one exists for the resolved path |
+
+## Model-derived SEO
+
+Models opt in with two traits:
+
+```php
+use App\Seo\Concerns\HasSeoMeta;
+use Hszope\LaravelAigeo\Traits\HasGeoProfile;
+
+class Product extends BaseModel
+{
+    use HasSeoMeta, HasGeoProfile;
+
+    public function geoProfile(): array
+    {
+        // name, description, url, image, sku, price, brand, category, ...
+    }
+}
+```
+
+- **`HasSeoMeta`** adds a `seoMeta()` morph relation to the `seo` table (`App\Models\SeoMeta`) for editable title/description/image/etc., and a `seoMetaDefaults()` fallback that pulls `name`/`description`/`image`/`url` straight out of `geoProfile()` when no explicit meta has been set.
+- **`HasGeoProfile`** (from the GEO package) requires `geoProfile(): array` and adds `geoScore()`/`geoAudit()`/`scopeByGeoScore()`. Currently implemented on `App\Models\Lunar\Extensions\Product` and `App\Models\OurWork`.
+
+`SeoManager::applyModel()` merges `seoMeta` over `seoMetaDefaults()` for the text fields, then — separately — builds JSON-LD from `geoProfile()`.
+
+## Structured data (JSON-LD)
+
+Schema blocks come from two independent sources that both feed the same `$seo->schemas` array:
+
+### GEO-generated schema
+
+`SeoManager::modelSchemas()` rebuilds JSON-LD from the model's live `geoProfile()` on every resolve, using a **fresh** `Hszope\LaravelAigeo\Modules\Schema\SchemaBuilder` instance (not the `geo.schema` container singleton, which persists state across a request and would leak schemas between resolves):
+
+```php
+$builder = (new SchemaBuilder())->product($profile);
+
+if (config('geo.schema.include_faq') && ! empty($profile['faqs'])) {
+    $builder->withFAQ($profile['faqs']);
+}
+// ...include_reviews, include_breadcrumb similarly gated
+```
+
+### SeoPage-authored schema
+
+A `SeoPage` record (see [SeoPage](#seopage-url-attached-overrides) below) can carry its own `schemas` array, authored in Filament and built by `App\Seo\Schema\SchemaTypeRegistry::buildMany()`.
+
+<Warning>
+  `SeoPage` is meant for URL-only marketing pages with **no backing Eloquent model** — its own docblock says so. If a `SeoPage` row's `path` ever matches a model-backed URL (e.g. a product page) _and_ that row has schema blocks configured, `SeoManager::applyPage()` now skips the schema merge for that page, since the model's GEO-generated JSON-LD already owns it. This guard exists because the two sources used to merge unconditionally (`array_merge`), which meant a `SeoPage` targeting a product URL would render a second, duplicate `Product` JSON-LD block alongside the GEO-generated one. Meta fields (title, description, canonical, etc.) still override normally either way — only the `schemas` merge is model-gated.
+</Warning>
+
+```php
+// App\Seo\SeoManager::applyPage()
+if (! $modelOwnsSchemas) {
+    $data->schemas = array_merge($data->schemas, SchemaTypeRegistry::buildMany($page->schemas));
+}
+```
+
+## SeoPage (URL-attached overrides)
+
+`App\Models\SeoPage` is a standalone, Filament-managed record keyed by `path` (normalized via `SeoPage::normalisePath()` — no scheme/host, no leading/trailing slash, no query string). Use it for pages with no Eloquent model behind them (landing pages, one-off marketing URLs) or to override a model page's meta without touching the model. Fields: `path`, `is_active`, `title`, `description`, `canonical`, `robots`, `author`, `og_image`, `og_type`, `twitter_card`, `schemas`.
+
+Managed at **Filament → SEO Pages**, built from `App\Filament\Resources\SeoPages\Schemas\SeoPageForm`.
+
+## Authorable schema types
+
+The `schemas` repeater on a `SeoPage` (and the type registry driving it) currently supports:
+
+| Key | Label | Description |
+| :-- | :-- | :-- |
+| `local_business` | Local Business / Print Shop | A business tied to a physical location (supports PrintShop, Store, and other subtypes). |
+| `faq` | FAQ | A list of frequently asked questions and answers. |
+| `breadcrumb` | Breadcrumb | The navigational breadcrumb trail for the page. |
+| `service` | Service | A service offered to customers, e.g. printing or design. |
+| `article` | Article | An article, blog post, or news story. |
+| `product` | Product | A physical or digital product for sale. |
+| `organization` | Organization | The organization, brand, or company behind the site. |
+| `raw` | Raw JSON-LD | Paste any schema.org JSON-LD not covered by the templates above. |
+
+Adding a new type: implement `App\Seo\Schema\SchemaType` (`key()`, `label()`, `description()`, `form()`, `missing()`, `build()`) and register the class in `SchemaTypeRegistry::$types`.
+
+## The GEO package (`hszope/laravel-aigeo`)
+
+**Actually used:**
+
+| Piece | Where |
+| :-- | :-- |
+| `HasGeoProfile` trait | `Product`, `OurWork` models — `geoProfile()`, `geoScore()`, `geoAudit()` |
+| `SchemaBuilder` | `SeoManager::modelSchemas()` — builds the model-derived JSON-LD |
+| `BreadcrumbSchema`, `FAQSchema` value objects | Wrapped by this app's own `BreadcrumbSchemaType` / `FaqSchemaType` |
+| `geo:feed` artisan command | Scheduled daily in `routes/console.php` |
+| Package routes | `/llms.txt`, `/llms-full.txt`, `/ai-product-feed.json`, `/ai-sitemap.xml`, `/geo` dashboard — all live per `config/geo.php` |
+
+**Registered but not actually active:**
+
+| Piece | Why it's inert |
+| :-- | :-- |
+| `<x-geo-head>` Blade component | Superseded by `<x-seo>` — not referenced anywhere in the app's views. |
+| `@geo_schema` / `@geo_faq` Blade directives | Same — unused. |
+| `InjectGeoHeaders` middleware (`geo.headers` alias) | Registered by the package's service provider but never attached to any route or group, so it never runs. |
+| `config('geo.schema.auto_inject')` | Set to `true` in `config/geo.php`, but nothing in the package or this app reads that key — it's not wired to anything. |
+
+## File structure
+
+```text
+app/Seo/
+├── SeoManager.php              # Resolves config + model + SeoPage into SeoData
+├── SeoData.php                 # Plain data bag rendered by components/seo.blade.php
+├── Concerns/
+│   └── HasSeoMeta.php           # Per-model seoMeta() relation + defaults
+└── Schema/
+    ├── SchemaType.php           # Interface: key/label/description/form/missing/build
+    ├── SchemaTypeRegistry.php   # Registered types + build(One|Many)
+    └── Types/
+        ├── LocalBusinessSchemaType.php
+        ├── FaqSchemaType.php
+        ├── BreadcrumbSchemaType.php
+        ├── ServiceSchemaType.php
+        ├── ArticleSchemaType.php
+        ├── ProductSchemaType.php
+        ├── OrganizationSchemaType.php
+        └── RawSchemaType.php
+
+app/Models/
+├── SeoPage.php                  # URL-attached override record
+└── SeoMeta.php                  # Per-model meta (`seo` table)
+
+app/View/Components/Seo.php      # <x-seo> — resolves + exposes $seo, $title
+resources/views/components/seo.blade.php
+```
+
+## Usage example
+
+```blade
+{{-- Model-backed page: product's geoProfile() + seoMeta feed the defaults --}}
+<x-seo :model="$product ?? null" :fallback-title="$title ?? null" />
+```
+
+```blade
+{{-- URL-only page: no model, resolves purely from config + a matching SeoPage --}}
+<x-seo :fallback-title="'Business Cards | Publications Plus'" />
+```
