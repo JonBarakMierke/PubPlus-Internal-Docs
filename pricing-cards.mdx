@@ -1,0 +1,262 @@
+---
+title: "Pricing Cards"
+description: "Pricing section component — plan cards or a full comparison table, both theme-aware."
+---
+
+Reusable pricing section with two distinct layouts. Renders as `<x-sections.pricing>`.
+
+## File Structure
+
+```text
+resources/views/components/sections/pricing/
+├── index.blade.php                       # Router — resolves variant, theme, and shared props
+├── variants/
+│   ├── cards.blade.php                   # Independent plan cards in a responsive grid
+│   └── comparison.blade.php              # Single comparison table, one row per shared feature
+└── partials/
+    ├── header.blade.php                  # Shared eyebrow/heading/subtext/actions header (both variants)
+    ├── plan.blade.php                    # One plan card — `cards` variant only
+    └── comparison-plan.blade.php         # One plan's header cell — `comparison` variant only
+```
+
+---
+
+## Props
+
+| Prop | Type / Values | Default | Notes |
+| :-- | :-- | :-- | :-- |
+| `variant` | `cards` \| `comparison` | `cards` | Picks which file in `variants/` renders. |
+| `container` | any Tailwind `max-w-*` class | `max-w-6xl` | Controls the max width of the section content. |
+| `theme` | `page` \| `light` \| `dark` \| `navy` | `page` | Controls the **non-featured** surface, text, and border colors as a matched set. `page` sits on the plain page background and auto-adapts to light/dark; the others are for placing the section on a colored band. See [Themes](#themes). |
+| `columns` | `2` \| `3` \| `4` | `2` | `cards `**variant only.** Plans per row on desktop, before any plan opts out with `span: full`. |
+| `plans` | array of plan arrays | `[]` | Shape differs per variant — see [Plan Shape — `cards` Variant](#plan-shape-cards-variant) and [Plan Shape — `comparison` Variant](#plan-shape-comparison-variant). |
+| `features` | array of strings | `[]` | `comparison `**variant only.** Shared row labels shown down the left column. |
+
+A `featured` plan always gets a fixed elevated treatment regardless of `theme` — that's the point of marking a plan featured, not something a theme should be able to turn off.
+
+---
+
+## Slots
+
+| Slot | Required | Description |
+| :-- | :-- | :-- |
+| `eyebrow` | No | Small uppercase label/pill above the heading. |
+| `heading` | No | Main `<h2>` (rendered via `x-ui.heading`). |
+| `subtext` | No | Supporting paragraph under the heading. |
+| `actions` | No | Button(s) shown below the subtext. |
+
+All slots are optional and independently `@isset`-guarded. Unlike the CTA section, this header is **always centered** — there's no `start`-aligned layout option, and the heading slot doesn't currently forward a user-supplied `class` through to `x-ui.heading`.
+
+---
+
+## Themes
+
+Themes are a fixed set defined once in `index.blade.php`, shared by both variants. There is **no free-form `bg` prop** — this keeps every pricing section on-brand.
+
+| Theme | Background / Border | Text | Use case |
+| :-- | :-- | :-- | :-- |
+| `page` | `bg-white` / `border-neutral-200` (auto dark: `bg-neutral-900` / `border-neutral-800`) | Neutral 900 / Neutral 50 dark | Default — section sits directly on the plain page surface. |
+| `light` | `bg-white` / `border-neutral-200` | Neutral 900 | Section placed on a light colored band. |
+| `dark` | `bg-white/5` / `border-white/10` | White / Neutral 300–400 | Section placed on a dark colored band. |
+| `navy` | `bg-white/5` / `border-white/10` | White / Neutral 300 |
+
+**To add a new theme:** add one entry to the `$themes` array in `index.blade.php` with `card`, `name`, `desc`, `price`, `suffix`, `divide`, `text`, `muted`, and `zebra` keys. It becomes available to both variants immediately — no changes needed in the variant files.
+
+---
+
+## Plan Shape — `cards` Variant
+
+Each entry in `:plans` is rendered as an independent card by `partials/plan.blade.php`.
+
+| Key | Type | Notes |
+| :-- | :-- | :-- |
+| `name` | string | Card title. |
+| `description` | string | Small caption under the title. |
+| `price` | string | Large display price, e.g. `'$25'`. |
+| `priceSuffix` | string | Optional, sits next to the price, e.g. `'per month'`. |
+| `features` | array | List of `['text' => ..., 'included' => bool]`. `included` defaults to `true`. A plain string (`'Trackable QR code'`) works the same as `['text' => 'Trackable QR code']`. |
+| `cta` | array | `['label' => ..., 'url' => ...]`. Optional — omit to render a card with no button. |
+| `featured` | bool | Default `false`. Renders a solid accent-filled card (`bg-grad-accent-left`) instead of the themed surface. |
+| `span` | `'full'` | Optional. Breaks the card out of the column grid to span the full row width, and switches its own feature list to two columns (`sm:grid-cols-2`). |
+
+### Full-Width Callouts (`span: full`)
+
+Any plan with `'span' => 'full'` ignores the `columns` prop entirely and spans every column via `md:col-span-full`. This is how a callout tier (e.g. a "Growth" or "White Labeling" plan) breaks out from a row of regular side-by-side cards — combine it with `'featured' => true` for the full look.
+
+---
+
+## Plan Shape — `comparison` Variant
+
+Each entry in `:plans` becomes one header cell (name/price/CTA), rendered by `partials/comparison-plan.blade.php`. Which feature rows show a check mark for that plan is driven by `included`, matched against the top-level `:features` array.
+
+| Key | Type | Notes |
+| :-- | :-- | :-- |
+| `name` | string | Plan name shown above the price. |
+| `price` | string | Large display price, e.g. `'$45'`. |
+| `priceYearly` | string | Optional. If **any** plan in `:plans` sets this, the yearly toggle appears — see [Yearly Toggle](#yearly-toggle-comparison-variant). Plans without their own `priceYearly` keep showing `price` in both toggle states. |
+| `priceSuffix` | string | Optional, defaults to `'Per Month'`. |
+| `cta` | array | `['label' => ..., 'url' => ...]`. Optional. |
+| `featured` | bool | Default `false`. Pops the header cell above/below the header row as an elevated `bg-neutral-900` card — see [Featured Column](#featured-column-comparison-variant). |
+| `included` | array of strings | Feature labels this plan includes. Each entry **must match a string in the top-level `:features` array exactly** — there's no fuzzy or case-insensitive matching. Anything in `:features` but not in a plan's `included` renders as a blank cell for that plan. |
+
+### Featured Column (`comparison` variant)
+
+The `featured` plan's header cell rises above the header row (`-mt-6`/`-mt-8`) and dips slightly below it (`-mb-6`) as a dark, elevated card — the rest of the table (every feature row, for every plan) stays visually plain regardless of which column is featured.
+
+This only works because the header row and the feature rows are **two separate CSS grids** stacked with an `mt-8` gap between them, not one continuous grid — that gap is exactly where the featured cell's `-mb-6` overlap lands, so it can never cover a check mark. If you're adjusting these values, keep the header-to-toggle gap (`mb-14`/`mb-16` on the toggle wrapper in `variants/comparison.blade.php`) larger than the featured cell's `-mt-*` pull-up, or the dark card will paint over the toggle instead (it comes later in DOM order, so it wins the overlap).
+
+### Yearly Toggle (`comparison` variant)
+
+A plain two-button Alpine pill (`x-data="{ yearly: false }"` on the section root), not `x-ui.switch` — that component derives its form `name` from an `x-model` attribute and re-spreads `$attributes` (including that same `x-model`) onto an inner hidden input, which ended up fighting the outer `x-model` for control of `$yearly`. Every price with a `priceYearly` value swaps via `x-show="!yearly"` / `x-show="yearly"`; the toggle itself only renders at all if at least one plan defines `priceYearly`.
+
+---
+
+## Usage Examples
+
+{/* TODO: screenshots not yet captured/uploaded for this page — grab them from the `/test` preview route (search for "PRICING SECTION" in resources/views/livewire/preview-components.blade.php) and replace the placeholder paths below. */}
+
+### 1. Cards, mixed span — two regular tiers, two full-width featured callouts
+
+```blade
+<x-sections.pricing columns="2" :plans="[
+    [
+        'name' => 'Print Add-On', 'description' => 'Free with print orders',
+        'price' => 'FREE',
+        'features' => [
+            ['text' => 'Trackable QR code'],
+            ['text' => 'Change link after printing'],
+            ['text' => 'Basic report of total scans', 'included' => false],
+            ['text' => 'Only receive reports for two months after print', 'included' => false],
+        ],
+    ],
+    [
+        'name' => 'Ongoing Visibility', 'description' => 'See trends over time',
+        'price' => '$19', 'priceSuffix' => 'per month',
+        'features' => [
+            ['text' => 'Trackable QR code'],
+            ['text' => 'Change link after printing'],
+            ['text' => 'See advanced report on your own dashboard'],
+            ['text' => 'Multiple campaigns'],
+            ['text' => 'Historical data'],
+        ],
+    ],
+    [
+        'name' => 'Growth', 'description' => 'See trends over time',
+        'price' => '$25', 'priceSuffix' => 'per month', 'featured' => true, 'span' => 'full',
+        'features' => [
+            ['text' => 'Trackable QR code'], ['text' => 'Location data'],
+            ['text' => 'Change link after printing'], ['text' => 'Multiple QR codes per campaign'],
+            ['text' => 'See advanced report on your own dashboard'], ['text' => 'Team access'],
+            ['text' => 'Multiple campaigns'], ['text' => 'Exports'],
+            ['text' => 'Historical data'],
+        ],
+        'cta' => ['label' => 'Get Started', 'url' => '/signup'],
+    ],
+    [
+        'name' => 'White Labeling', 'description' => 'Offer PaperLink to your customers',
+        'price' => '$99 - $299', 'priceSuffix' => 'per month', 'featured' => true, 'span' => 'full',
+        'cta' => ['label' => 'Contact Sales', 'url' => '/contact'],
+    ],
+]">
+    <x-slot:eyebrow>Pricing</x-slot:eyebrow>
+    <x-slot:heading>Plans that grow with you</x-slot:heading>
+    <x-slot:subtext>Start free, upgrade when you need more visibility.</x-slot:subtext>
+</x-sections.pricing>
+```
+
+<Frame>
+  ![Two regular pricing cards side by side (Print Add-On, Ongoing Visibility) with a full-width green featured Growth card and a full-width White Labeling card underneath](/images/pricing-cards-mixed-span.png)
+</Frame>
+
+### 2. Cards, dark theme — three-up, no featured tier
+
+```blade
+<div class="bg-neutral-950 rounded-4xl">
+    <x-sections.pricing theme="dark" columns="3" :plans="[
+        [
+            'name' => 'Starter', 'description' => 'For solo makers',
+            'price' => '$0', 'priceSuffix' => 'forever',
+            'features' => [['text' => '1 project'], ['text' => 'Community support'], ['text' => 'Team seats', 'included' => false]],
+            'cta' => ['label' => 'Start Free', 'url' => '#'],
+        ],
+        [
+            'name' => 'Pro', 'description' => 'For growing teams',
+            'price' => '$29', 'priceSuffix' => 'per month',
+            'features' => [['text' => 'Unlimited projects'], ['text' => 'Priority support'], ['text' => '5 team seats']],
+            'cta' => ['label' => 'Start Trial', 'url' => '#'],
+        ],
+        [
+            'name' => 'Enterprise', 'description' => 'For large orgs',
+            'price' => 'Custom',
+            'features' => [['text' => 'Unlimited everything'], ['text' => 'Dedicated support'], ['text' => 'SSO & audit logs']],
+            'cta' => ['label' => 'Contact Sales', 'url' => '#'],
+        ],
+    ]">
+        <x-slot:heading>Simple, transparent pricing</x-slot:heading>
+    </x-sections.pricing>
+</div>
+```
+
+<Frame>
+  ![Three plain pricing cards (Starter, Pro, Enterprise) on a dark neutral-950 background, none of them featured](/images/pricing-cards-dark-3up.png)
+</Frame>
+
+### 3. Comparison table, featured column, yearly toggle
+
+```blade
+<x-sections.pricing
+    variant="comparison"
+    :features="['Unlimited Components', 'Easily edited and customized', 'Combine Files Mercurius', 'Health care included']"
+    :plans="[
+        [
+            'name' => 'Free Plan', 'price' => '$0',
+            'cta' => ['label' => 'Get Started', 'url' => '#'],
+            'included' => ['Unlimited Components', 'Easily edited and customized', 'Combine Files Mercurius'],
+        ],
+        [
+            'name' => 'Premium Plan', 'price' => '$45', 'priceYearly' => '$36', 'featured' => true,
+            'cta' => ['label' => 'Get Started', 'url' => '#'],
+            'included' => ['Unlimited Components', 'Easily edited and customized', 'Combine Files Mercurius', 'Health care included'],
+        ],
+        [
+            'name' => 'Enterprise Plan', 'price' => '$99', 'priceYearly' => '$79',
+            'cta' => ['label' => 'Get Started', 'url' => '#'],
+            'included' => ['Unlimited Components', 'Easily edited and customized', 'Combine Files Mercurius', 'Health care included'],
+        ],
+    ]"
+>
+    <x-slot:eyebrow>Pricing</x-slot:eyebrow>
+    <x-slot:heading>Pick Your Plan</x-slot:heading>
+</x-sections.pricing>
+```
+
+<Frame>
+  ![Comparison table in a white bounding card: Free, Premium, and Enterprise plan columns, a Monthly/Yearly toggle above, a dark elevated Premium column, and alternating gray/white feature rows with green check marks](/images/pricing-comparison-featured-toggle.png)
+</Frame>
+
+---
+
+## Extending This Component
+
+1. Create `resources/views/components/sections/pricing/variants/{name}.blade.php`.
+2. Add an entry to the `$variants` array in `index.blade.php`:
+   ```php
+   $variants = [
+       'cards'      => 'components.sections.pricing.variants.cards',
+       'comparison' => 'components.sections.pricing.variants.comparison',
+       'new-name'   => 'components.sections.pricing.variants.new-name',
+   ];
+   ```
+3. The new file automatically receives every prop and shared computed value (`$theme`, `$palette`, `$eyebrowTheme`, `$gridCols`, `$container`, `$plans`, `$features`, `$eyebrow`, `$heading`, `$subtext`, `$actions`, etc.) via the shared `@include($view)` — no extra wiring needed.
+4. Reference `$palette['card']`, `$palette['name']`, `$palette['text']`, etc. for surface/text colors so the new variant respects themes automatically, rather than hardcoding colors.
+
+To add a new theme instead of a new variant, see [Themes](#themes) above — it only requires one new entry in the `$themes` array, not a code change to either variant file.
+
+---
+
+## Pending / Not Yet Built
+
+- No screenshots captured or uploaded for this page yet — the `<Frame>` placeholders above need real images from the `/test` preview route.
+- The `comparison` variant's featured column always uses a fixed `bg-neutral-900` dark card, while the `cards` variant's featured surface uses the brand `bg-grad-accent-left` gradient. These two "featured" treatments don't currently match each other {/* TODO: confirm whether the comparison variant's featured column should be restyled to use the accent gradient for consistency with the cards variant, or whether the dark treatment is intentional */}.
+- `comparison`'s grid column count is set via an inline `style="grid-template-columns: ..."` attribute (built from `count($plans)` in PHP), not a Tailwind class — this is deliberate, since Tailwind can't generate an arbitrary `grid-cols-N` utility for a runtime-determined plan count, but it's worth flagging so a future pass doesn't "clean it up" into a Tailwind class and silently lose support for more than a few plans.
+- No Livewire/backend wiring — `:plans` and `:features` are always static arrays passed in from the calling view; nothing here reads from a real pricing/billing model.
